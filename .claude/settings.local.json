@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx astro add tailwind:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(for f in hero-1.jpg service-mulching.jpg service-hillside.jpg service-fence.jpg proof-1.jpg proof-2.jpg proof-3.jpg before-after-1.jpg before-after-2.jpg)",
+      "Bash(do)",
+      "Bash(ls:*)"
+    ]
+  }
+}

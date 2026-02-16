@@ -1,0 +1,53 @@
+---
+import Section from "./Section.astro";
+---
+
+<Section bg="bg-bg">
+  <div class="text-center max-w-3xl mx-auto">
+    <!-- Heading -->
+    <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
+      See It In Action
+    </p>
+    <h2 class="text-3xl sm:text-4xl lg:text-[2.75rem] font-heading font-bold text-text leading-[1.08]">
+      REAL TRANSFORMATIONS.<br class="hidden sm:block" /> REAL PROPERTIES.
+    </h2>
+    <p class="mt-5 text-muted text-base leading-relaxed">
+      Watch real forestry mulching projects from start to finish.
+      See how we turn overgrown land into cleared, walkable property in a single day.
+    </p>
+  </div>
+
+  <!-- Video Preview -->
+  <div class="mt-12 max-w-4xl mx-auto">
+    <a
+      href="https://youtube.com/@keystoneterrain"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="group block relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-surface2 via-[#14291f] to-surface border border-border hover:border-border-hover transition-all duration-300"
+    >
+      <!-- Preview image with fallback -->
+      <img
+        src="/video-preview.jpg"
+        alt="Forestry mulching project footage"
+        class="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-[1.02] transition-all duration-500"
+        loading="lazy"
+        onerror="this.style.display='none'"
+      />
+
+      <!-- Play button overlay -->
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="w-20 h-20 rounded-full bg-accent/90 flex items-center justify-center group-hover:bg-accent group-hover:scale-110 transition-all duration-300 shadow-[0_4px_30px_rgba(200,163,105,0.3)]">
+          <svg class="w-8 h-8 text-bg ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Bottom caption -->
+      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-bg/80 to-transparent p-5">
+        <p class="text-text text-sm font-medium">Watch Our Latest Project Walkthrough</p>
+        <p class="text-muted text-xs mt-0.5">Opens on YouTube →</p>
+      </div>
+    </a>
+  </div>
+</Section>

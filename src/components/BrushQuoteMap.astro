@@ -1,0 +1,833 @@
+---
+/**
+ * BrushQuoteMap — Interactive satellite map quoting system
+ * Customer draws polygon on satellite view → auto-calculates acres → submits quote request
+ * Uses: Leaflet + Leaflet.Draw + Turf.js + free ESRI/USGS tiles (no API keys)
+ */
+import { site } from "../data/siteContent";
+---
+
+<!-- Leaflet CSS (loaded from CDN for simplicity, avoids Astro bundling issues with Leaflet CSS) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+
+<style>
+  /* Leaflet icon fix for bundlers */
+  .leaflet-default-icon-path {
+    background-image: url("https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png");
+  }
+
+  /* Custom draw control styling to match site theme */
+  .leaflet-draw-toolbar a {
+    background-color: #162821 !important;
+    border-color: rgba(242, 242, 238, 0.1) !important;
+    color: #F2F2EE !important;
+  }
+  .leaflet-draw-toolbar a:hover {
+    background-color: #1e3a2f !important;
+    border-color: rgba(200, 163, 105, 0.5) !important;
+  }
+  .leaflet-draw-actions a {
+    background-color: #162821 !important;
+    color: #F2F2EE !important;
+    border-color: rgba(242, 242, 238, 0.1) !important;
+  }
+  .leaflet-draw-actions a:hover {
+    background-color: #C8A369 !important;
+    color: #0B1411 !important;
+  }
+
+  /* File drop zone */
+  .drop-zone {
+    border: 2px dashed rgba(242, 242, 238, 0.15);
+    transition: all 200ms ease;
+  }
+  .drop-zone:hover,
+  .drop-zone.dragover {
+    border-color: rgba(200, 163, 105, 0.6);
+    background-color: rgba(200, 163, 105, 0.05);
+  }
+
+  /* Spinner */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .spinner {
+    animation: spin 0.8s linear infinite;
+    border: 3px solid rgba(242, 242, 238, 0.15);
+    border-top-color: #C8A369;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+  }
+</style>
+
+<div id="quote-map-system" class="space-y-0">
+
+  <!-- ═══════════════ STEP INDICATORS ═══════════════ -->
+  <div class="flex items-center justify-center gap-2 mb-8">
+    <div class="step-indicator flex items-center gap-2" data-step="1">
+      <span class="step-num w-8 h-8 rounded-full bg-accent text-bg text-sm font-bold flex items-center justify-center font-heading">1</span>
+      <span class="text-sm font-medium text-text hidden sm:inline">Find Property</span>
+    </div>
+    <div class="w-8 h-px bg-border"></div>
+    <div class="step-indicator flex items-center gap-2 opacity-40" data-step="2">
+      <span class="step-num w-8 h-8 rounded-full bg-surface2 border border-border text-muted text-sm font-bold flex items-center justify-center font-heading">2</span>
+      <span class="text-sm font-medium text-muted hidden sm:inline">Draw Area</span>
+    </div>
+    <div class="w-8 h-px bg-border"></div>
+    <div class="step-indicator flex items-center gap-2 opacity-40" data-step="3">
+      <span class="step-num w-8 h-8 rounded-full bg-surface2 border border-border text-muted text-sm font-bold flex items-center justify-center font-heading">3</span>
+      <span class="text-sm font-medium text-muted hidden sm:inline">Submit Details</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ADDRESS SEARCH ═══════════════ -->
+  <div class="mb-4">
+    <div class="flex gap-2">
+      <div class="relative flex-1">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="text"
+          id="address-search"
+          placeholder="Type your address (e.g., 123 Main St, North Huntingdon, PA)"
+          class="w-full bg-surface2 border border-border rounded pl-10 pr-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+        />
+      </div>
+      <button
+        id="search-btn"
+        class="btn btn-primary px-5 py-3 text-sm shrink-0"
+        type="button"
+      >
+        Search
+      </button>
+    </div>
+    <p class="mt-1.5 text-muted/50 text-xs">Search your address, then use the polygon tool on the map to outline the area you need cleared.</p>
+  </div>
+
+  <!-- ═══════════════ MAP CONTAINER ═══════════════ -->
+  <div class="relative rounded-lg overflow-hidden border border-border">
+    <div id="leaflet-map" style="height: 520px; width: 100%; background: #111F19;"></div>
+
+    <!-- Floating Stats Panel -->
+    <div id="stats-panel" class="absolute top-3 right-3 z-[1000] bg-bg/90 backdrop-blur-sm border border-border rounded-lg p-4 min-w-[200px] hidden">
+      <div class="space-y-2">
+        <div>
+          <p class="text-muted text-xs uppercase tracking-wider font-heading">Selected Area</p>
+          <p class="text-accent text-2xl font-heading font-bold" id="acre-display">0.00 acres</p>
+        </div>
+        <div id="slope-display" class="hidden">
+          <p class="text-muted text-xs uppercase tracking-wider font-heading">Est. Slope</p>
+          <p class="text-olive2 text-lg font-heading font-bold" id="slope-value">—</p>
+        </div>
+        <div id="perimeter-display">
+          <p class="text-muted text-xs uppercase tracking-wider font-heading">Perimeter</p>
+          <p class="text-text text-sm font-medium" id="perimeter-value">—</p>
+        </div>
+      </div>
+      <button
+        id="clear-polygon-btn"
+        class="mt-3 w-full text-xs font-heading font-semibold uppercase tracking-wide text-red-400 hover:text-red-300 py-1.5 border border-red-400/30 rounded hover:border-red-300/50 transition-colors"
+        type="button"
+      >
+        Clear &amp; Redraw
+      </button>
+    </div>
+
+    <!-- Map instructions overlay -->
+    <div id="map-instructions" class="absolute bottom-3 left-3 z-[1000] bg-bg/85 backdrop-blur-sm border border-border rounded-lg px-4 py-2.5">
+      <p class="text-muted text-xs flex items-center gap-2">
+        <svg class="w-4 h-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span id="instruction-text">Search your address above, then click the polygon tool to draw your clearing area.</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ QUOTE FORM (reveals after polygon drawn) ═══════════════ -->
+  <div id="quote-form-section" class="hidden mt-6">
+    <div class="bg-surface2 border border-border rounded-lg p-6 lg:p-8">
+
+      <div class="mb-6">
+        <h3 class="font-heading font-bold text-xl text-text uppercase tracking-wide">Complete Your Quote Request</h3>
+        <p class="mt-1 text-muted text-sm">We'll review your map, photos, and details — then text or email your quote within 1–2 hours.</p>
+      </div>
+
+      <form id="quote-form" class="space-y-5" novalidate>
+        <!-- Hidden fields for map data -->
+        <input type="hidden" name="acres" id="form-acres" value="" />
+        <input type="hidden" name="polygon" id="form-polygon" value="" />
+        <input type="hidden" name="slope" id="form-slope" value="" />
+        <input type="hidden" name="address_auto" id="form-address-auto" value="" />
+        <input type="hidden" name="center_lat" id="form-center-lat" value="" />
+        <input type="hidden" name="center_lng" id="form-center-lng" value="" />
+
+        <!-- Area Summary -->
+        <div class="bg-bg/50 border border-border rounded-lg p-4 flex flex-wrap items-center gap-4">
+          <div>
+            <p class="text-muted text-xs uppercase tracking-wider font-heading">Area to Clear</p>
+            <p class="text-accent text-xl font-heading font-bold" id="form-acres-display">0.00 acres</p>
+          </div>
+          <div class="hidden" id="form-slope-display-wrap">
+            <p class="text-muted text-xs uppercase tracking-wider font-heading">Est. Slope</p>
+            <p class="text-olive2 text-base font-heading font-bold" id="form-slope-display">—</p>
+          </div>
+          <div class="ml-auto">
+            <button type="button" id="edit-polygon-btn" class="text-xs text-accent hover:text-accent2 font-medium underline transition-colors">
+              Edit on Map ↑
+            </button>
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-5">
+          <!-- Address -->
+          <div class="sm:col-span-2">
+            <label for="q-address" class="block text-sm font-medium text-text mb-1.5">Property Address</label>
+            <input
+              type="text"
+              id="q-address"
+              name="address"
+              required
+              placeholder="Full street address"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+            />
+            <p class="qf-error hidden mt-1 text-red-400 text-xs">Please enter the property address.</p>
+          </div>
+
+          <!-- Name -->
+          <div>
+            <label for="q-name" class="block text-sm font-medium text-text mb-1.5">Full Name</label>
+            <input
+              type="text"
+              id="q-name"
+              name="name"
+              required
+              placeholder="Your name"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+            />
+            <p class="qf-error hidden mt-1 text-red-400 text-xs">Please enter your name.</p>
+          </div>
+
+          <!-- Phone -->
+          <div>
+            <label for="q-phone" class="block text-sm font-medium text-text mb-1.5">Phone <span class="text-accent">*</span></label>
+            <input
+              type="tel"
+              id="q-phone"
+              name="phone"
+              required
+              placeholder="(XXX) XXX-XXXX"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+            />
+            <p class="qf-error hidden mt-1 text-red-400 text-xs">Please enter a valid phone number.</p>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="q-email" class="block text-sm font-medium text-text mb-1.5">Email</label>
+            <input
+              type="email"
+              id="q-email"
+              name="email"
+              placeholder="you@email.com"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+            />
+          </div>
+
+          <!-- Preferred Month -->
+          <div>
+            <label for="q-month" class="block text-sm font-medium text-text mb-1.5">Preferred Month</label>
+            <select
+              id="q-month"
+              name="preferred_month"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+            >
+              <option value="">No preference</option>
+              <option value="ASAP">ASAP</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Photo Upload -->
+        <div>
+          <label class="block text-sm font-medium text-text mb-1.5">Photos of the Area <span class="text-muted text-xs">(up to 5)</span></label>
+          <div
+            id="photo-drop-zone"
+            class="drop-zone rounded-lg p-6 text-center cursor-pointer"
+          >
+            <svg class="w-8 h-8 text-muted/40 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+            <p class="text-muted text-sm">Drag photos here or <span class="text-accent underline">browse</span></p>
+            <p class="text-muted/40 text-xs mt-1">JPG, PNG up to 10MB each</p>
+            <input
+              type="file"
+              id="photo-input"
+              name="photos"
+              multiple
+              accept="image/*"
+              class="hidden"
+            />
+          </div>
+          <div id="photo-previews" class="flex flex-wrap gap-2 mt-3"></div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label for="q-notes" class="block text-sm font-medium text-text mb-1.5">Notes / Description</label>
+          <textarea
+            id="q-notes"
+            name="notes"
+            rows="4"
+            placeholder="Describe the vegetation (honeysuckle, saplings, vines, etc.), terrain (flat, steep slope, hillside), access issues, fence lines, trails you want preserved, or anything else we should know."
+            class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors resize-y"
+          ></textarea>
+        </div>
+
+        <!-- Terms Checkbox -->
+        <div class="flex items-start gap-3">
+          <input
+            type="checkbox"
+            id="q-terms"
+            name="terms"
+            required
+            class="mt-1 w-4 h-4 rounded border-border bg-bg text-accent focus:ring-accent"
+          />
+          <label for="q-terms" class="text-muted text-sm leading-relaxed">
+            I understand this is an estimate request, not a binding contract. A deposit may be required to hold a scheduled date. Keystone Terrain will review my submission and follow up with a formal quote.
+          </label>
+          <p class="qf-error hidden mt-1 text-red-400 text-xs">Please accept the terms.</p>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex items-center gap-4">
+          <button
+            type="submit"
+            id="submit-btn"
+            class="btn btn-primary text-sm"
+          >
+            Submit Quote Request
+          </button>
+          <div id="submit-spinner" class="spinner hidden"></div>
+        </div>
+      </form>
+
+      <!-- Success Message -->
+      <div id="quote-success" class="hidden text-center py-8">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-olive/20 flex items-center justify-center">
+          <svg class="w-8 h-8 text-olive2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 class="font-heading font-bold text-2xl text-text uppercase">Quote Request Received</h3>
+        <p class="mt-3 text-muted text-base max-w-md mx-auto leading-relaxed">
+          Thanks! We'll review your map and photos and text/email your quote within 1–2 hours during business hours.
+        </p>
+        <p class="mt-4 text-muted text-sm">
+          Need it faster? Call us directly:
+          <a href={`tel:${site.phone.replace(/\D/g, "")}`} class="text-accent font-semibold hover:text-accent2 transition-colors">{site.phone}</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     CLIENT-SIDE SCRIPT — Map, Drawing, Calculations
+     ═══════════════════════════════════════════════════ -->
+<script>
+  import L from "leaflet";
+  import "leaflet-draw";
+  import { area as turfArea } from "@turf/area";
+  import { polygon as turfPolygon } from "@turf/helpers";
+
+  // ── Fix Leaflet default icon paths (common bundler issue) ──
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  });
+
+  // ── State ──
+  let map: L.Map;
+  let drawnItems: L.FeatureGroup;
+  let currentPolygon: L.Polygon | null = null;
+  let selectedAcres = 0;
+  let estimatedSlope = "";
+  let resolvedAddress = "";
+
+  // ── DOM refs ──
+  const mapEl = document.getElementById("leaflet-map")!;
+  const statsPanel = document.getElementById("stats-panel")!;
+  const acreDisplay = document.getElementById("acre-display")!;
+  const slopeDisplay = document.getElementById("slope-display")!;
+  const slopeValue = document.getElementById("slope-value")!;
+  const perimeterValue = document.getElementById("perimeter-value")!;
+  const instructionText = document.getElementById("instruction-text")!;
+  const formSection = document.getElementById("quote-form-section")!;
+  const searchInput = document.getElementById("address-search") as HTMLInputElement;
+  const searchBtn = document.getElementById("search-btn")!;
+  const clearBtn = document.getElementById("clear-polygon-btn")!;
+  const editBtn = document.getElementById("edit-polygon-btn")!;
+  const photoDropZone = document.getElementById("photo-drop-zone")!;
+  const photoInput = document.getElementById("photo-input") as HTMLInputElement;
+  const photoPreviews = document.getElementById("photo-previews")!;
+
+  // ── Step indicator management ──
+  function setStep(step: number) {
+    document.querySelectorAll(".step-indicator").forEach((el) => {
+      const s = Number((el as HTMLElement).dataset.step);
+      const num = el.querySelector(".step-num") as HTMLElement;
+      if (s <= step) {
+        el.classList.remove("opacity-40");
+        if (s === step) {
+          num.classList.add("bg-accent", "text-bg");
+          num.classList.remove("bg-surface2", "border", "border-border", "text-muted");
+        } else {
+          num.classList.add("bg-olive", "text-text");
+          num.classList.remove("bg-surface2", "border", "border-border", "text-muted", "bg-accent", "text-bg");
+        }
+      } else {
+        el.classList.add("opacity-40");
+        num.classList.remove("bg-accent", "text-bg", "bg-olive", "text-text");
+        num.classList.add("bg-surface2", "border", "border-border", "text-muted");
+      }
+    });
+  }
+
+  // ── Initialize Map ──
+  function initMap() {
+    // Center on North Huntingdon, PA
+    map = L.map(mapEl, {
+      center: [40.3284, -79.7281],
+      zoom: 13,
+      zoomControl: true,
+    });
+
+    // ESRI World Imagery (free, no API key)
+    const satellite = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: "Tiles &copy; Esri",
+        maxZoom: 19,
+      }
+    );
+
+    // OpenStreetMap for labels/roads overlay
+    const labels = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 19,
+        opacity: 0.6,
+      }
+    );
+
+    // USGS Topo for slope context (switchable)
+    const topo = L.tileLayer(
+      "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: "USGS",
+        maxZoom: 16,
+      }
+    );
+
+    satellite.addTo(map);
+    labels.addTo(map);
+
+    // Layer control
+    const baseLayers = {
+      "Satellite": satellite,
+      "Topographic": topo,
+    };
+    const overlays = {
+      "Road Labels": labels,
+    };
+    L.control.layers(baseLayers, overlays, { position: "topright" }).addTo(map);
+
+    // ── Drawing Setup (polygon only) ──
+    drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    const drawControl = new L.Control.Draw({
+      position: "topleft",
+      draw: {
+        polygon: {
+          allowIntersection: false,
+          showArea: false,
+          shapeOptions: {
+            color: "#C8A369",
+            weight: 2,
+            fillColor: "#C8A369",
+            fillOpacity: 0.2,
+          },
+        } as any,
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        circlemarker: false,
+        marker: false,
+      },
+      edit: {
+        featureGroup: drawnItems,
+        remove: true,
+      },
+    });
+    map.addControl(drawControl);
+
+    // ── Draw Events ──
+    map.on(L.Draw.Event.CREATED, (e: any) => {
+      // Remove previous polygon
+      drawnItems.clearLayers();
+      currentPolygon = e.layer;
+      drawnItems.addLayer(currentPolygon!);
+      calculateArea();
+      showForm();
+      setStep(3);
+      instructionText.textContent = "Area drawn! Edit the polygon by dragging vertices, or submit your details below.";
+    });
+
+    map.on(L.Draw.Event.EDITED, () => {
+      calculateArea();
+    });
+
+    map.on(L.Draw.Event.DELETED, () => {
+      currentPolygon = null;
+      selectedAcres = 0;
+      statsPanel.classList.add("hidden");
+      formSection.classList.add("hidden");
+      setStep(2);
+      instructionText.textContent = "Polygon cleared. Use the polygon tool to draw a new area.";
+    });
+
+    setStep(1);
+  }
+
+  // ── Calculate Area (geodesic via Turf.js) ──
+  function calculateArea() {
+    if (!currentPolygon) return;
+
+    const latlngs = (currentPolygon.getLatLngs()[0] as L.LatLng[]);
+    if (latlngs.length < 3) return;
+
+    // Build GeoJSON ring (must close the ring)
+    const coords = latlngs.map((ll: L.LatLng) => [ll.lng, ll.lat]);
+    coords.push(coords[0]); // close ring
+
+    const poly = turfPolygon([coords]);
+    const sqMeters = turfArea(poly);
+
+    // Convert sq meters to acres (1 acre = 4046.86 sq meters)
+    selectedAcres = parseFloat((sqMeters / 4046.86).toFixed(2));
+
+    // Calculate perimeter
+    let perimeter = 0;
+    for (let i = 0; i < latlngs.length; i++) {
+      const next = latlngs[(i + 1) % latlngs.length];
+      perimeter += latlngs[i].distanceTo(next);
+    }
+    const perimeterFt = Math.round(perimeter * 3.28084);
+
+    // Update displays
+    acreDisplay.textContent = `${selectedAcres} acres`;
+    perimeterValue.textContent = `${perimeterFt.toLocaleString()} ft`;
+    statsPanel.classList.remove("hidden");
+
+    // Update form hidden fields
+    (document.getElementById("form-acres") as HTMLInputElement).value = String(selectedAcres);
+    (document.getElementById("form-polygon") as HTMLInputElement).value = JSON.stringify(coords);
+    (document.getElementById("form-acres-display") as HTMLElement).textContent = `${selectedAcres} acres`;
+
+    // Attempt slope estimation via USGS Elevation API
+    fetchSlope(latlngs);
+  }
+
+  // ── Slope Estimation via USGS Elevation Point Query ──
+  async function fetchSlope(latlngs: L.LatLng[]) {
+    try {
+      // Sample a few points along the polygon for elevation
+      const sampleCount = Math.min(latlngs.length, 8);
+      const step = Math.max(1, Math.floor(latlngs.length / sampleCount));
+      const points: L.LatLng[] = [];
+      for (let i = 0; i < latlngs.length; i += step) {
+        points.push(latlngs[i]);
+      }
+
+      // USGS Elevation API (free, no key)
+      const elevations: number[] = [];
+      for (const pt of points) {
+        const url = `https://epqs.nationalmap.gov/v1/json?x=${pt.lng}&y=${pt.lat}&wkid=4326&units=Feet&includeDate=false`;
+        const resp = await fetch(url);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.value !== undefined && data.value !== -1000000) {
+            elevations.push(Number(data.value));
+          }
+        }
+      }
+
+      if (elevations.length >= 2) {
+        const maxElev = Math.max(...elevations);
+        const minElev = Math.min(...elevations);
+        const elevDiff = maxElev - minElev;
+
+        // Rough slope classification
+        let slopeLabel: string;
+        if (elevDiff < 5) {
+          slopeLabel = "Flat (< 5 ft change)";
+        } else if (elevDiff < 15) {
+          slopeLabel = "Gentle (~" + Math.round(elevDiff) + " ft change)";
+        } else if (elevDiff < 40) {
+          slopeLabel = "Moderate (~" + Math.round(elevDiff) + " ft change)";
+        } else if (elevDiff < 80) {
+          slopeLabel = "Steep (~" + Math.round(elevDiff) + " ft change)";
+        } else {
+          slopeLabel = "Very Steep (~" + Math.round(elevDiff) + " ft change)";
+        }
+
+        estimatedSlope = slopeLabel;
+        slopeValue.textContent = slopeLabel;
+        slopeDisplay.classList.remove("hidden");
+        (document.getElementById("form-slope") as HTMLInputElement).value = slopeLabel;
+        (document.getElementById("form-slope-display") as HTMLElement).textContent = slopeLabel;
+        (document.getElementById("form-slope-display-wrap") as HTMLElement).classList.remove("hidden");
+      }
+    } catch {
+      // Slope estimation is best-effort; silently ignore failures
+    }
+  }
+
+  // ── Address Geocoding (Nominatim — free, no API key) ──
+  async function geocodeAddress(query: string) {
+    // Bias toward Pittsburgh area
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&viewbox=-80.5,40.0,-79.0,40.8&bounded=0&limit=1`;
+    try {
+      const resp = await fetch(url, {
+        headers: { "User-Agent": "KeystoneTerrainQuoteTool/1.0" },
+      });
+      const results = await resp.json();
+      if (results.length > 0) {
+        const r = results[0];
+        map.setView([parseFloat(r.lat), parseFloat(r.lon)], 18);
+        resolvedAddress = r.display_name;
+        (document.getElementById("form-address-auto") as HTMLInputElement).value = resolvedAddress;
+        (document.getElementById("q-address") as HTMLInputElement).value = query;
+        (document.getElementById("form-center-lat") as HTMLInputElement).value = r.lat;
+        (document.getElementById("form-center-lng") as HTMLInputElement).value = r.lon;
+        setStep(2);
+        instructionText.textContent = "Great! Now click the polygon tool (▰ icon) on the left, then click points around the area you want cleared.";
+      } else {
+        alert("Address not found. Try a more specific address or zoom in manually.");
+      }
+    } catch {
+      alert("Geocoding failed. Please zoom in manually on the map.");
+    }
+  }
+
+  // ── Show/hide form ──
+  function showForm() {
+    formSection.classList.remove("hidden");
+    setTimeout(() => {
+      formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }
+
+  // ── Photo Upload Handling ──
+  let uploadedFiles: File[] = [];
+
+  photoDropZone.addEventListener("click", () => photoInput.click());
+
+  photoDropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    photoDropZone.classList.add("dragover");
+  });
+  photoDropZone.addEventListener("dragleave", () => {
+    photoDropZone.classList.remove("dragover");
+  });
+  photoDropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    photoDropZone.classList.remove("dragover");
+    const files = e.dataTransfer?.files;
+    if (files) addPhotos(Array.from(files));
+  });
+
+  photoInput.addEventListener("change", () => {
+    if (photoInput.files) addPhotos(Array.from(photoInput.files));
+  });
+
+  function addPhotos(files: File[]) {
+    for (const f of files) {
+      if (uploadedFiles.length >= 5) break;
+      if (!f.type.startsWith("image/")) continue;
+      if (f.size > 10 * 1024 * 1024) continue;
+      uploadedFiles.push(f);
+    }
+    renderPhotoPreviews();
+  }
+
+  function renderPhotoPreviews() {
+    photoPreviews.innerHTML = "";
+    uploadedFiles.forEach((file, i) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "relative w-20 h-20 rounded-lg overflow-hidden border border-border group";
+
+      const img = document.createElement("img");
+      img.className = "w-full h-full object-cover";
+      img.src = URL.createObjectURL(file);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "absolute inset-0 bg-bg/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-red-400";
+      removeBtn.innerHTML = '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>';
+      removeBtn.addEventListener("click", () => {
+        uploadedFiles.splice(i, 1);
+        renderPhotoPreviews();
+      });
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(removeBtn);
+      photoPreviews.appendChild(wrapper);
+    });
+
+    // Update drop zone text
+    if (uploadedFiles.length >= 5) {
+      photoDropZone.classList.add("opacity-50", "pointer-events-none");
+    } else {
+      photoDropZone.classList.remove("opacity-50", "pointer-events-none");
+    }
+  }
+
+  // ── Event Handlers ──
+  searchBtn.addEventListener("click", () => {
+    const query = searchInput.value.trim();
+    if (query) geocodeAddress(query);
+  });
+
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const query = searchInput.value.trim();
+      if (query) geocodeAddress(query);
+    }
+  });
+
+  clearBtn.addEventListener("click", () => {
+    drawnItems.clearLayers();
+    currentPolygon = null;
+    selectedAcres = 0;
+    estimatedSlope = "";
+    statsPanel.classList.add("hidden");
+    formSection.classList.add("hidden");
+    slopeDisplay.classList.add("hidden");
+    setStep(2);
+    instructionText.textContent = "Polygon cleared. Use the polygon tool to draw a new area.";
+  });
+
+  editBtn.addEventListener("click", () => {
+    document.getElementById("leaflet-map")?.scrollIntoView({ behavior: "smooth" });
+  });
+
+  // ── Form Submission ──
+  const form = document.getElementById("quote-form") as HTMLFormElement;
+  const submitBtn = document.getElementById("submit-btn")!;
+  const submitSpinner = document.getElementById("submit-spinner")!;
+  const successDiv = document.getElementById("quote-success")!;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    let valid = true;
+
+    // Reset errors
+    form.querySelectorAll(".qf-error").forEach((el) => el.classList.add("hidden"));
+
+    // Validate required fields
+    const address = form.querySelector("#q-address") as HTMLInputElement;
+    if (!address.value.trim()) {
+      address.parentElement?.querySelector(".qf-error")?.classList.remove("hidden");
+      valid = false;
+    }
+
+    const name = form.querySelector("#q-name") as HTMLInputElement;
+    if (!name.value.trim()) {
+      name.parentElement?.querySelector(".qf-error")?.classList.remove("hidden");
+      valid = false;
+    }
+
+    const phone = form.querySelector("#q-phone") as HTMLInputElement;
+    if (!/^[\d\s\-\(\)\+]{7,}$/.test(phone.value.trim())) {
+      phone.parentElement?.querySelector(".qf-error")?.classList.remove("hidden");
+      valid = false;
+    }
+
+    const terms = form.querySelector("#q-terms") as HTMLInputElement;
+    if (!terms.checked) {
+      terms.parentElement?.querySelector(".qf-error")?.classList.remove("hidden");
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    // Disable submit
+    submitBtn.classList.add("opacity-50", "pointer-events-none");
+    submitSpinner.classList.remove("hidden");
+
+    // Build FormData
+    const formData = new FormData();
+    formData.append("name", name.value.trim());
+    formData.append("phone", phone.value.trim());
+    formData.append("email", (form.querySelector("#q-email") as HTMLInputElement).value.trim());
+    formData.append("address", address.value.trim());
+    formData.append("acres", String(selectedAcres));
+    formData.append("slope", estimatedSlope);
+    formData.append("polygon", (document.getElementById("form-polygon") as HTMLInputElement).value);
+    formData.append("preferred_month", (form.querySelector("#q-month") as HTMLSelectElement).value);
+    formData.append("notes", (form.querySelector("#q-notes") as HTMLTextAreaElement).value.trim());
+    formData.append("center_lat", (document.getElementById("form-center-lat") as HTMLInputElement).value);
+    formData.append("center_lng", (document.getElementById("form-center-lng") as HTMLInputElement).value);
+
+    for (const file of uploadedFiles) {
+      formData.append("photos", file);
+    }
+
+    try {
+      // ── OPTION A: Formspree (replace YOUR_FORM_ID) ──
+      // const resp = await fetch("https://formspree.io/f/YOUR_FORM_ID", {
+      //   method: "POST",
+      //   body: formData,
+      //   headers: { "Accept": "application/json" },
+      // });
+
+      // ── OPTION B: Your own API route ──
+      const resp = await fetch("/api/submit-quote", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!resp.ok) throw new Error("Submit failed");
+
+      // Show success
+      form.classList.add("hidden");
+      successDiv.classList.remove("hidden");
+      successDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (err) {
+      alert("Something went wrong. Please try again or call us directly at (724) 972-9286.");
+      submitBtn.classList.remove("opacity-50", "pointer-events-none");
+      submitSpinner.classList.add("hidden");
+    }
+  });
+
+  // ── Init ──
+  initMap();
+</script>

@@ -1,0 +1,55 @@
+---
+import { site } from "../data/siteContent";
+---
+
+<section class="relative w-full noise-overlay overflow-hidden">
+  <!-- Radial gradient background -->
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,#1a2e1f_0%,#0B1411_70%)]"></div>
+  <!-- Subtle secondary glow -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_600px_at_80%_80%,rgba(92,107,58,0.08)_0%,transparent_70%)]"></div>
+
+  <div class="relative z-10 container-main pt-20 pb-24 lg:pt-32 lg:pb-36 text-center">
+    <!-- Headline -->
+    <h1 class="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] text-text leading-[1.06] tracking-tight max-w-4xl mx-auto">
+      RECLAIM YOUR LAND WITH PROFESSIONAL FORESTRY MULCHING
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="mt-6 text-muted text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+      We turn overgrown lots, tangled hillsides, and dense brush into cleared, usable property — often in a single day.
+      Serving the Greater Pittsburgh Area with professional-grade forestry mulching and land clearing.
+    </p>
+
+    <!-- Credentials Row -->
+    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+      {[
+        { icon: "★", label: "5-Star Rated" },
+        { icon: "✓", label: "Licensed & Fully Insured" },
+        { icon: "⌂", label: "Locally Owned in North Huntingdon, PA" },
+      ].map((item) => (
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-full bg-olive/20 text-olive2 flex items-center justify-center text-xs font-bold">
+            {item.icon}
+          </span>
+          <span class="text-muted text-sm font-medium">{item.label}</span>
+        </div>
+      ))}
+    </div>
+
+    <!-- CTA Row -->
+    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href="/quote" class="btn btn-primary">
+        Map Your Property &amp; Get Quote&ensp;→
+      </a>
+      <a
+        href={`tel:${site.phone.replace(/\D/g, "")}`}
+        class="text-accent text-sm font-semibold hover:text-accent2 transition-colors duration-200"
+      >
+        {site.phone}
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom fade line -->
+  <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+</section>
