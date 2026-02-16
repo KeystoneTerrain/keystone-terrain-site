@@ -1,5 +1,7 @@
 ---
 import "../styles/global.css";
+import SiteHeader from "../components/SiteHeader.astro";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title?: string;
@@ -50,6 +52,8 @@ const {
     <title>{title}</title>
   </head>
   <body class="min-h-screen bg-bg">
+    <SiteHeader />
     <slot />
+    <Footer />
   </body>
 </html>
