@@ -1,20 +1,40 @@
-import type { APIRoute } from "astro";
-import { Resend } from "resend";
+/**
+ * POST /api/quote
+ *
+ * Alternative quote endpoint using Resend for email delivery.
+ * REQUIRES: RESEND_API_KEY environment variable set in Vercel dashboard.
+ *
+ * NOTE: The main quote form (BrushQuoteMap) submits to /api/submit-quote instead.
+ * This endpoint is available for future use (e.g., JSON-based quote submissions).
+ */
+export const prerender = false;
 
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
+import type { APIRoute } from "astro";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    // Lazy-load Resend only when the endpoint is actually called
+    const apiKey = import.meta.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.error("RESEND_API_KEY is not set. Skipping email delivery.");
+      return new Response(
+        JSON.stringify({ ok: false, error: "Email service not configured. Please set RESEND_API_KEY." }),
+        { status: 503, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const { Resend } = await import("resend");
+    const resend = new Resend(apiKey);
+
     const body = await request.json();
 
-    // TODO: replace these with your real calculated values
     const customerEmail = body.email;
     const customerName = body.name ?? "there";
     const price = body.price ?? 5000;
 
     // 1) Email YOU (internal notification)
     await resend.emails.send({
-      from: "Keystone Terrain <onboarding@resend.dev>", // testing sender
+      from: "Keystone Terrain <onboarding@resend.dev>",
       to: ["hello@keystoneterrain.com"],
       subject: "New Quote Request (Map Submission)",
       text: `New submission:\n\n${JSON.stringify(body, null, 2)}`,
@@ -23,7 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
     // 2) Email CUSTOMER (customer-facing quote)
     if (customerEmail) {
       await resend.emails.send({
-        from: "Keystone Terrain <onboarding@resend.dev>", // testing sender
+        from: "Keystone Terrain <onboarding@resend.dev>",
         to: [customerEmail],
         subject: "Your Keystone Terrain Quote",
         text: `Hey ${customerName},\n\nThanks for sending your map request.\nEstimated quote: $${price}\n\nReply to this email if you have photos or notes to add.\n\n– Keystone Terrain Co.`,
@@ -35,9 +55,10 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err: any) {
-    return new Response(JSON.stringify({ ok: false, error: err?.message ?? "Server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("Quote API error:", err);
+    return new Response(
+      JSON.stringify({ ok: false, error: err?.message ?? "Server error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 };
