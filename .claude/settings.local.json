@@ -10,7 +10,12 @@
       "Bash(ls:*)",
       "Bash(timeout 8 npx astro dev:*)",
       "WebFetch(domain:docs.astro.build)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(gh api:*)",
+      "Bash(node:*)",
+      "Bash(for f in /Users/matthewhill/Desktop/Keystone-Terrain/.vercel/output/functions/_render.func/dist/server/pages/*.mjs)",
+      "Bash(done)",
+      "Bash(git rm:*)"
     ]
   }
 }
