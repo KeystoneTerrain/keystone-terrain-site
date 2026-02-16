@@ -1,6 +1,6 @@
-import { e as createComponent, k as renderComponent, r as renderTemplate, m as maybeRenderHead, g as addAttribute } from '../chunks/astro/server_D8noONNE.mjs';
+import { e as createComponent, k as renderComponent, r as renderTemplate, m as maybeRenderHead, g as addAttribute } from '../chunks/astro/server_aRS6HrLF.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout, s as site, a as services } from '../chunks/BaseLayout_B7jmqWQ4.mjs';
+import { $ as $$BaseLayout, s as site, a as services } from '../chunks/BaseLayout_DkXTp_hn.mjs';
 export { renderers } from '../renderers.mjs';
 
 const $$Services = createComponent(($$result, $$props, $$slots) => {

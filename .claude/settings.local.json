@@ -8,7 +8,9 @@
       "Bash(for f in hero-1.jpg service-mulching.jpg service-hillside.jpg service-fence.jpg proof-1.jpg proof-2.jpg proof-3.jpg before-after-1.jpg before-after-2.jpg)",
       "Bash(do)",
       "Bash(ls:*)",
-      "Bash(timeout 8 npx astro dev:*)"
+      "Bash(timeout 8 npx astro dev:*)",
+      "WebFetch(domain:docs.astro.build)",
+      "Bash(npm ls:*)"
     ]
   }
 }
