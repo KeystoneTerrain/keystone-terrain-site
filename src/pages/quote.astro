@@ -6,7 +6,7 @@ import { site } from "../data/siteContent";
 
 <BaseLayout
   title="Get a Quote — Map Your Property | Keystone Terrain Co."
-  description="Draw your clearing area on a satellite map, upload photos, and get a fast quote from Keystone Terrain. Serving the Greater Pittsburgh area."
+  description="Draw your clearing area on a satellite map, upload photos, and get a fast quote from Keystone Terrain. Professional forestry mulching services."
 >
   <!-- Hero Header -->
   <section class="relative w-full noise-overlay overflow-hidden">
@@ -19,15 +19,15 @@ import { site } from "../data/siteContent";
         MAP YOUR PROPERTY.<br />GET A FAST QUOTE.
       </h1>
       <p class="mt-4 text-muted text-base max-w-2xl mx-auto leading-relaxed">
-        Search your address, draw the area you want cleared on satellite view, upload a few photos,
-        and we'll send you a detailed quote — usually within 1–2 hours.
+        Tell us how to reach you, then use our satellite map tool to draw your clearing area
+        and we'll send you a detailed quote &mdash; usually within 24&ndash;48 hours.
       </p>
 
       <!-- How it works mini-steps -->
       <div class="mt-8 flex flex-wrap justify-center gap-6 sm:gap-10">
         {[
-          { num: "1", label: "Find your property" },
-          { num: "2", label: "Draw the clearing area" },
+          { num: "1", label: "Your contact info" },
+          { num: "2", label: "Map your property" },
           { num: "3", label: "Add details & submit" },
         ].map((s) => (
           <div class="flex items-center gap-2">
@@ -42,9 +42,93 @@ import { site } from "../data/siteContent";
     <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
   </section>
 
-  <!-- Map + Form Section -->
-  <section class="w-full bg-surface py-10 lg:py-14">
+  <!-- ═══════════ LEAD CAPTURE GATE ═══════════ -->
+  <section id="lead-gate-section" class="w-full bg-surface py-10 lg:py-14">
+    <div class="container-main max-w-[620px]">
+      <div class="bg-surface2 border border-border rounded-lg p-6 lg:p-8">
+        <h2 class="font-heading font-bold text-xl text-text uppercase tracking-wide">
+          Step 1: Your Contact Info
+        </h2>
+        <p class="mt-2 text-muted text-sm leading-relaxed">
+          So we can send you the quote. Takes 30 seconds.
+        </p>
+
+        <form id="lead-gate-form" class="mt-6 space-y-4" novalidate>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label for="lg-name" class="block text-sm font-medium text-text mb-1.5">Name <span class="text-accent">*</span></label>
+              <input
+                type="text"
+                id="lg-name"
+                name="name"
+                required
+                placeholder="Your name"
+                class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+              />
+              <p class="lg-error hidden mt-1 text-red-400 text-xs">Please enter your name.</p>
+            </div>
+            <div>
+              <label for="lg-phone" class="block text-sm font-medium text-text mb-1.5">Phone <span class="text-accent">*</span></label>
+              <input
+                type="tel"
+                id="lg-phone"
+                name="phone"
+                required
+                placeholder="(XXX) XXX-XXXX"
+                class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+              />
+              <p class="lg-error hidden mt-1 text-red-400 text-xs">Please enter a valid phone number.</p>
+            </div>
+          </div>
+
+          <div>
+            <label for="lg-email" class="block text-sm font-medium text-text mb-1.5">Email</label>
+            <input
+              type="email"
+              id="lg-email"
+              name="email"
+              placeholder="you@email.com"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+            />
+          </div>
+
+          <div>
+            <label for="lg-address" class="block text-sm font-medium text-text mb-1.5">Property Address <span class="text-accent">*</span></label>
+            <input
+              type="text"
+              id="lg-address"
+              name="address"
+              required
+              placeholder="e.g., 123 Main St, North Huntingdon, PA"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+            />
+            <p class="lg-error hidden mt-1 text-red-400 text-xs">Please enter the property address.</p>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full !text-sm">
+            Continue to Map Tool &ensp;&rarr;
+          </button>
+
+          <p class="text-center text-muted/50 text-xs">
+            No spam. Your info is only used to deliver your quote.
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map + Form Section (hidden until lead gate is passed) -->
+  <section id="map-section" class="w-full bg-surface py-10 lg:py-14 hidden">
     <div class="container-main">
+      <!-- Confirmation bar -->
+      <div id="lead-confirmed-bar" class="mb-6 bg-olive/15 border border-olive/30 rounded-lg px-5 py-3 flex items-center justify-between">
+        <p class="text-olive2 text-sm font-medium">
+          <span class="font-semibold">Contact info saved.</span> Now draw your clearing area on the map below.
+        </p>
+        <button type="button" id="edit-contact-btn" class="text-accent text-xs font-medium hover:text-accent2 transition-colors underline">
+          Edit info
+        </button>
+      </div>
       <BrushQuoteMap />
     </div>
   </section>
@@ -95,3 +179,83 @@ import { site } from "../data/siteContent";
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // ── Lead Gate Logic ──
+  const gateForm = document.getElementById("lead-gate-form") as HTMLFormElement;
+  const gateSection = document.getElementById("lead-gate-section");
+  const mapSection = document.getElementById("map-section");
+  const editBtn = document.getElementById("edit-contact-btn");
+
+  // Pre-fill BrushQuoteMap fields with gated data
+  function prefillMapForm() {
+    const name = (document.getElementById("lg-name") as HTMLInputElement)?.value;
+    const phone = (document.getElementById("lg-phone") as HTMLInputElement)?.value;
+    const email = (document.getElementById("lg-email") as HTMLInputElement)?.value;
+    const address = (document.getElementById("lg-address") as HTMLInputElement)?.value;
+
+    // Pre-fill the map form fields (IDs from BrushQuoteMap)
+    const mapName = document.getElementById("q-name") as HTMLInputElement;
+    const mapPhone = document.getElementById("q-phone") as HTMLInputElement;
+    const mapEmail = document.getElementById("q-email") as HTMLInputElement;
+    const mapAddress = document.getElementById("q-address") as HTMLInputElement;
+    const searchInput = document.getElementById("address-search") as HTMLInputElement;
+
+    if (mapName && name) mapName.value = name;
+    if (mapPhone && phone) mapPhone.value = phone;
+    if (mapEmail && email) mapEmail.value = email;
+    if (mapAddress && address) mapAddress.value = address;
+    if (searchInput && address) searchInput.value = address;
+  }
+
+  gateForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let valid = true;
+
+    // Reset errors
+    gateForm.querySelectorAll(".lg-error").forEach((el) => el.classList.add("hidden"));
+
+    const name = gateForm.querySelector("#lg-name") as HTMLInputElement;
+    if (!name.value.trim()) {
+      name.nextElementSibling?.classList.remove("hidden");
+      valid = false;
+    }
+
+    const phone = gateForm.querySelector("#lg-phone") as HTMLInputElement;
+    if (!/^[\d\s\-\(\)\+]{7,}$/.test(phone.value.trim())) {
+      phone.nextElementSibling?.classList.remove("hidden");
+      valid = false;
+    }
+
+    const address = gateForm.querySelector("#lg-address") as HTMLInputElement;
+    if (!address.value.trim()) {
+      address.nextElementSibling?.classList.remove("hidden");
+      valid = false;
+    }
+
+    if (valid) {
+      // Hide gate, show map
+      gateSection?.classList.add("hidden");
+      mapSection?.classList.remove("hidden");
+
+      // Pre-fill map form fields
+      prefillMapForm();
+
+      // Auto-trigger address search on the map
+      setTimeout(() => {
+        const searchBtn = document.getElementById("search-btn");
+        if (searchBtn) searchBtn.click();
+      }, 500);
+
+      // Scroll to map section
+      mapSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  // Edit contact info — go back to gate
+  editBtn?.addEventListener("click", () => {
+    mapSection?.classList.add("hidden");
+    gateSection?.classList.remove("hidden");
+    gateSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+</script>

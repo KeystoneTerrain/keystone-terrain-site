@@ -19,12 +19,34 @@ import { site } from "../data/siteContent";
         Most quotes delivered within 24–48 hours.
       </p>
 
-      <ul class="mt-8 space-y-4">
+      <!-- Trust & Process Block -->
+      <div class="mt-8 bg-surface2 border border-border rounded-lg p-5">
+        <p class="font-heading font-bold text-sm text-text uppercase tracking-wide mb-4">
+          Trust &amp; Process
+        </p>
+        <ul class="space-y-3">
+          {[
+            "24–48 Hour Quote Response",
+            "Licensed & Fully Insured Operators",
+            "Map-Based Acreage Estimates",
+            "Forestry Mulching Specialists",
+          ].map((item) => (
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span class="text-muted text-sm leading-relaxed">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <ul class="mt-6 space-y-4">
         {[
           "No-obligation quotes — fast and accurate",
           "We assess brush density, slope, and access",
           "Licensed, insured, and locally owned",
-          "Most projects scheduled within 1–2 weeks",
+          "Scheduling based on availability — we'll confirm next open dates after review",
         ].map((item) => (
           <li class="flex items-start gap-3">
             <svg class="w-5 h-5 text-olive2 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -35,27 +57,10 @@ import { site } from "../data/siteContent";
         ))}
       </ul>
 
-      <!-- Trust Block -->
-      <div class="mt-8 bg-surface2 border border-border rounded-lg p-5">
-        <p class="font-heading font-bold text-sm text-text uppercase tracking-wide mb-3">
-          Why Property Owners Trust Us
-        </p>
-        <ul class="space-y-2.5">
-          {[
-            "5-star rated by property owners across the region",
-            "Fully licensed and insured for your protection",
-            "Transparent, acreage-based pricing — no hidden fees",
-            "Before & after photo documentation on every job",
-          ].map((item) => (
-            <li class="flex items-start gap-2.5">
-              <svg class="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span class="text-muted text-xs leading-relaxed">{item}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <!-- Minimum Job Notice -->
+      <p class="mt-6 text-muted/50 text-xs italic leading-relaxed">
+        Minimum project / mobilization fee applies (based on location and scope).
+      </p>
 
       <!-- Contact info -->
       <div class="mt-10 pt-8 border-t border-border space-y-3">

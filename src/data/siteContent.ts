@@ -35,7 +35,7 @@ export const services: ServiceItem[] = [
     description:
       "Transform overgrown acreage into clean, usable property—fast.",
     metaDescription:
-      "Professional land and brush clearing using forestry mulching in Western PA. Fast, low-impact clearing for lots, fields, and reclaim projects. Free estimates.",
+      "Professional land and brush clearing using forestry mulching in Pittsburgh and beyond. Fast, low-impact clearing for lots, fields, and reclaim projects. Free estimates.",
     longDescription: [
       "Whether you've got a neglected five-acre parcel or a small residential lot that's been swallowed by brush, our forestry mulching equipment transforms overgrown land into clean, usable property—often in a single day. No burning, no hauling, no heavy excavation damage to your soil.",
       "Our forestry mulching heads grind standing trees, saplings, brush, and undergrowth into a fine layer of natural mulch that stays on-site. This mulch layer suppresses future weed growth, prevents erosion, and decomposes over time to enrich the soil beneath. It's the most efficient and environmentally responsible way to clear land in Western Pennsylvania.",
@@ -58,7 +58,7 @@ export const services: ServiceItem[] = [
     description:
       "Clear and prep build sites for homes, barns, and access roads.",
     metaDescription:
-      "Construction site clearing and lot prep using forestry mulching in Greater Pittsburgh. Clean, build-ready space for homes, pole barns, and cabins. Free quotes.",
+      "Construction site clearing and lot prep using forestry mulching in Pittsburgh and surrounding areas. Clean, build-ready space for homes, pole barns, and cabins. Free quotes.",
     longDescription: [
       "When you're breaking ground on a new home, pole barn, cabin, or garage, the first step is getting the lot cleared—and forestry mulching is the fastest, cleanest way to do it. We take your build site from overgrown woodland to a flat, debris-free surface ready for survey stakes, footers, and equipment access.",
       "Unlike traditional clearing methods that leave behind stumps, burn piles, and rutted soil from heavy dozers, forestry mulching processes everything in place. The mulched material creates a natural erosion barrier while your site is exposed during construction—a major advantage on sloped lots or properties near waterways where sediment control is a concern.",
@@ -81,7 +81,7 @@ export const services: ServiceItem[] = [
     description:
       "Cut new trails or restore overgrown access routes through dense terrain.",
     metaDescription:
-      "Trail cutting and access corridor clearing using forestry mulching in Western PA. ATV trails, walking paths, and property roads. Free estimates.",
+      "Trail cutting and access corridor clearing using forestry mulching in Pittsburgh and surrounding areas. ATV trails, walking paths, and property roads. Free estimates.",
     longDescription: [
       "There's nothing like having clean, navigable trails through your own property—whether you're building ATV routes, walking paths, hunting access lanes, or simply connecting different areas of your land. Our forestry mulching equipment cuts precise, clean-edged trails through dense woodland without the mess and expense of traditional clearing.",
       "The beauty of forestry mulching for trail work is the finished product. Instead of mud, ruts, and debris piles along the edges, you get a smooth, mulch-covered trail surface with clean sight lines and natural-looking borders. The mulch layer acts as a natural surface treatment—it compacts over time, drains well, and prevents the trail from turning into a mud channel during rain.",
@@ -104,7 +104,7 @@ export const services: ServiceItem[] = [
     description:
       "Restore visibility and access along overgrown fence rows and boundaries.",
     metaDescription:
-      "Fence line and property boundary clearing using forestry mulching in Greater Pittsburgh. Precision clearing without damaging posts or wire. Free quotes.",
+      "Fence line and property boundary clearing using forestry mulching in Pittsburgh and surrounding areas. Precision clearing without damaging posts or wire. Free quotes.",
     longDescription: [
       "Overgrown fence lines are one of the most common problems we solve. When brush, vines, and saplings take over a fence row, you lose visibility, access, and eventually the fence itself—wire gets pulled, posts get pushed over, and what was once a clean property boundary becomes an impenetrable wall of vegetation.",
       "Our forestry mulching approach restores fence lines with surgical precision. We clear vegetation from both sides of the fence row, working as close to the posts and wire as the equipment allows, then hand-finish any tight spots to give you a clean, accessible boundary. The key advantage is speed—we can clear a quarter-mile fence line in a few hours, a job that would take a crew with chainsaws and brush cutters an entire week.",
@@ -127,7 +127,7 @@ export const services: ServiceItem[] = [
     description:
       "Eliminate invasive species and reclaim choked-out land.",
     metaDescription:
-      "Invasive vegetation removal using forestry mulching in Western PA. Multiflora rose, autumn olive, honeysuckle, and thorn thickets eliminated. Free estimates.",
+      "Invasive vegetation removal using forestry mulching in Pittsburgh and surrounding areas. Multiflora rose, autumn olive, honeysuckle, and thorn thickets eliminated. Free estimates.",
     longDescription: [
       "Western Pennsylvania has a serious invasive species problem, and it's getting worse every year. Multiflora rose, autumn olive, bush honeysuckle, Japanese knotweed, and thorn-bearing shrubs are choking out native plants, destroying forest understory, and making entire sections of property completely unusable. If you've tried to fight these invasives by hand, you know how futile it feels.",
       "Forestry mulching is the most effective mechanical method for large-scale invasive removal. Our equipment doesn't just cut the vegetation—it grinds it into mulch, root crown and all. This is critical because many invasive species (especially multiflora rose and autumn olive) will resprout aggressively from cut stems. By mulching the entire plant below the soil line, we dramatically reduce regrowth compared to mowing or chainsaw cutting.",
@@ -150,7 +150,7 @@ export const services: ServiceItem[] = [
     description:
       "Clean up storm damage and reclaim neglected properties fast.",
     metaDescription:
-      "Storm cleanup and property reclamation using forestry mulching in Greater Pittsburgh. Remove downed trees, brush, and overgrowth. Fast response. Free quotes.",
+      "Storm cleanup and property reclamation using forestry mulching in Pittsburgh and surrounding areas. Remove downed trees, brush, and overgrowth. Fast response. Free quotes.",
     longDescription: [
       "After a major storm or years of neglect, a property can look completely unrecoverable—downed trees tangled with standing brush, limbs piled on top of undergrowth, and debris scattered across acres of land. Traditional cleanup methods are painfully slow and expensive: chainsaw crews cutting, chipping, and hauling load after load to the dump. Forestry mulching gets it done in a fraction of the time.",
       "Our equipment processes downed trees (up to 8–10 inches diameter), tangled brush piles, standing deadwood, and accumulated storm debris in a single pass. Everything gets ground into mulch on-site, which means no hauling costs, no dumpster fees, and no burn permits. The mulch layer that remains actually protects your exposed soil from erosion while the property recovers.",
