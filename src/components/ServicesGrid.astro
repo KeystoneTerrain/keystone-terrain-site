@@ -10,10 +10,10 @@ import { services } from "../data/siteContent";
       What We Do
     </p>
     <h2 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-text">
-      FORESTRY MULCHING SERVICES
+      LAND CLEARING &amp; FORESTRY MULCHING SERVICES
     </h2>
     <p class="mt-4 text-muted text-base max-w-2xl mx-auto leading-relaxed">
-      Premium, low-impact land clearing using professional forestry mulching equipment&mdash;priced by acreage + site conditions for fast, accurate quotes.
+      One machine. One pass. Total transformation. We use professional forestry mulching to handle everything from brush-choked lots to storm-damaged timber&mdash;no burning, no hauling, no heavy excavation.
     </p>
   </div>
 
@@ -21,8 +21,9 @@ import { services } from "../data/siteContent";
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
     {services.map((service) => (
       <a
+        id={service.anchorId}
         href={`/services/${service.slug}`}
-        class="group block rounded-lg overflow-hidden bg-surface2 border border-border transition-all duration-[250ms] ease-out hover:-translate-y-1.5 hover:border-border-hover hover:shadow-[0_12px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(200,163,105,0.15)]"
+        class="group block rounded-lg overflow-hidden bg-surface2 border border-border transition-all duration-[250ms] ease-out hover:-translate-y-1.5 hover:border-border-hover hover:shadow-[0_12px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(200,163,105,0.15)] scroll-mt-24"
       >
         <!-- Image -->
         <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-surface2 via-[#1a3028] to-surface">

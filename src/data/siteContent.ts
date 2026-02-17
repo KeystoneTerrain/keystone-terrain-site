@@ -8,12 +8,14 @@ export const site = {
   phone: "(724) 972-9286",
   email: "hello@keystoneterrain.com",
   location: "North Huntingdon, PA",
-  serviceArea: "Serving the Greater Pittsburgh Area",
+  serviceArea: "Serving Pittsburgh and surrounding regions — expanding into new markets",
 };
 
 export interface ServiceItem {
   title: string;
   slug: string;
+  /** Anchor ID used for homepage scroll targets (e.g. "service-land-brush") */
+  anchorId: string;
   image: string;
   description: string;
   /** Full page write-up content — array of paragraphs */
@@ -28,9 +30,10 @@ export const services: ServiceItem[] = [
   {
     title: "Land & Brush Clearing",
     slug: "land-brush-clearing",
+    anchorId: "service-land-brush",
     image: "/services/forestry-mulching.jpg",
     description:
-      "Turn overgrown acreage into usable land fast using forestry mulching—ideal for lots, fields, edges, and reclaim projects.",
+      "Transform overgrown acreage into clean, usable property—fast.",
     metaDescription:
       "Professional land and brush clearing using forestry mulching in Western PA. Fast, low-impact clearing for lots, fields, and reclaim projects. Free estimates.",
     longDescription: [
@@ -50,9 +53,10 @@ export const services: ServiceItem[] = [
   {
     title: "Construction Lot Prep",
     slug: "construction-lot-prep",
+    anchorId: "service-lot-prep",
     image: "/services/hillside-mulching.jpg",
     description:
-      "Clear and prep build sites with forestry mulching for homes, pole barns, cabins, and access corridors—clean, build-ready space.",
+      "Clear and prep build sites for homes, barns, and access roads.",
     metaDescription:
       "Construction site clearing and lot prep using forestry mulching in Greater Pittsburgh. Clean, build-ready space for homes, pole barns, and cabins. Free quotes.",
     longDescription: [
@@ -72,9 +76,10 @@ export const services: ServiceItem[] = [
   {
     title: "Trails & Access Corridors",
     slug: "trails-access-corridors",
+    anchorId: "service-trails",
     image: "/services/trail-cutting.jpg",
     description:
-      "Cut new or restore existing trails and access lanes using forestry mulching for ATVs, walking paths, and property navigation.",
+      "Cut new trails or restore overgrown access routes through dense terrain.",
     metaDescription:
       "Trail cutting and access corridor clearing using forestry mulching in Western PA. ATV trails, walking paths, and property roads. Free estimates.",
     longDescription: [
@@ -94,9 +99,10 @@ export const services: ServiceItem[] = [
   {
     title: "Fence Line & Boundary Clearing",
     slug: "fence-line-clearing",
+    anchorId: "service-fence-line",
     image: "/services/fence-line.jpg",
     description:
-      "Restore visibility and access along fence lines and property boundaries using precision forestry mulching without damaging posts or wire.",
+      "Restore visibility and access along overgrown fence rows and boundaries.",
     metaDescription:
       "Fence line and property boundary clearing using forestry mulching in Greater Pittsburgh. Precision clearing without damaging posts or wire. Free quotes.",
     longDescription: [
@@ -116,9 +122,10 @@ export const services: ServiceItem[] = [
   {
     title: "Invasive Vegetation Removal",
     slug: "invasive-vegetation-removal",
+    anchorId: "service-invasive",
     image: "/services/invasive-removal.jpg",
     description:
-      "Target aggressive species like multiflora rose, autumn olive, honeysuckle, and thorn thickets using forestry mulching.",
+      "Eliminate invasive species and reclaim choked-out land.",
     metaDescription:
       "Invasive vegetation removal using forestry mulching in Western PA. Multiflora rose, autumn olive, honeysuckle, and thorn thickets eliminated. Free estimates.",
     longDescription: [
@@ -138,9 +145,10 @@ export const services: ServiceItem[] = [
   {
     title: "Storm & Property Reclamation",
     slug: "storm-property-reclamation",
+    anchorId: "service-storm-reclaim",
     image: "/services/brush-hogging.jpg",
     description:
-      "Cleanup and restoration after storms or long-term neglect using forestry mulching—remove hazards, downed brush, and overgrowth.",
+      "Clean up storm damage and reclaim neglected properties fast.",
     metaDescription:
       "Storm cleanup and property reclamation using forestry mulching in Greater Pittsburgh. Remove downed trees, brush, and overgrowth. Fast response. Free quotes.",
     longDescription: [
@@ -159,10 +167,10 @@ export const services: ServiceItem[] = [
   },
 ];
 
-/** Dropdown-ready links derived from services — now pointing to individual pages */
+/** Dropdown-ready links derived from services — pointing to homepage anchor IDs */
 export const serviceNavLinks = services.map((s) => ({
   label: s.title,
-  href: `/services/${s.slug}`,
+  href: `/#${s.anchorId}`,
 }));
 
 export interface TestimonialItem {

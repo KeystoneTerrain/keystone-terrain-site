@@ -21,9 +21,9 @@ import { site } from "../data/siteContent";
 
       <ul class="mt-8 space-y-4">
         {[
-          "Fast, accurate quotes based on your property details",
+          "No-obligation quotes — fast and accurate",
           "We assess brush density, slope, and access",
-          "Serving Greater Pittsburgh & surrounding areas",
+          "Licensed, insured, and locally owned",
           "Most projects scheduled within 1–2 weeks",
         ].map((item) => (
           <li class="flex items-start gap-3">
@@ -34,6 +34,28 @@ import { site } from "../data/siteContent";
           </li>
         ))}
       </ul>
+
+      <!-- Trust Block -->
+      <div class="mt-8 bg-surface2 border border-border rounded-lg p-5">
+        <p class="font-heading font-bold text-sm text-text uppercase tracking-wide mb-3">
+          Why Property Owners Trust Us
+        </p>
+        <ul class="space-y-2.5">
+          {[
+            "5-star rated by property owners across the region",
+            "Fully licensed and insured for your protection",
+            "Transparent, acreage-based pricing — no hidden fees",
+            "Before & after photo documentation on every job",
+          ].map((item) => (
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span class="text-muted text-xs leading-relaxed">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <!-- Contact info -->
       <div class="mt-10 pt-8 border-t border-border space-y-3">

@@ -30,8 +30,9 @@ import { services, site } from "../data/siteContent";
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {services.map((service) => (
           <a
+            id={service.anchorId}
             href={`/services/${service.slug}`}
-            class="group block rounded-lg overflow-hidden bg-surface2 border border-border transition-all duration-[250ms] ease-out hover:-translate-y-1.5 hover:border-border-hover hover:shadow-[0_12px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(200,163,105,0.15)]"
+            class="group block rounded-lg overflow-hidden bg-surface2 border border-border transition-all duration-[250ms] ease-out hover:-translate-y-1.5 hover:border-border-hover hover:shadow-[0_12px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(200,163,105,0.15)] scroll-mt-24"
           >
             <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-surface2 via-[#1a3028] to-surface">
               <img

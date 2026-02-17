@@ -1,0 +1,56 @@
+---
+import Section from "./Section.astro";
+---
+
+<Section id="why-forestry-mulching" bg="bg-bg" noise>
+  <div class="max-w-3xl mx-auto text-center">
+    <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
+      The Smarter Way to Clear Land
+    </p>
+    <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text leading-[1.08]">
+      WHY FORESTRY MULCHING?
+    </h2>
+    <p class="mt-5 text-muted text-base leading-relaxed">
+      Forestry mulching uses a single machine to cut, grind, and clear vegetation in one pass&mdash;leaving behind a layer of natural mulch that protects your soil. No burn piles, no dumpsters, no heavy excavation damage.
+    </p>
+
+    <ul class="mt-10 grid sm:grid-cols-2 gap-5 text-left">
+      {[
+        {
+          icon: "⚡",
+          title: "Faster Than Traditional Clearing",
+          text: "Most jobs completed in 1\u20132 days\u2014not weeks.",
+        },
+        {
+          icon: "🌱",
+          title: "Low Impact on Your Land",
+          text: "No ruts, no soil compaction, no erosion risk from exposed ground.",
+        },
+        {
+          icon: "♻️",
+          title: "No Hauling or Burning",
+          text: "Everything is processed on-site into natural mulch that enriches the soil.",
+        },
+        {
+          icon: "💰",
+          title: "Cost-Effective",
+          text: "One machine replaces chainsaws, chippers, dozers, and dump trucks.",
+        },
+      ].map((item) => (
+        <li class="bg-surface2 border border-border rounded-lg p-5 flex items-start gap-4">
+          <span class="w-10 h-10 rounded-full bg-olive/20 flex items-center justify-center text-lg shrink-0">
+            {item.icon}
+          </span>
+          <div>
+            <h3 class="font-heading font-bold text-sm text-text uppercase tracking-wide">
+              {item.title}
+            </h3>
+            <p class="mt-1 text-muted text-sm leading-relaxed">
+              {item.text}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Section>
