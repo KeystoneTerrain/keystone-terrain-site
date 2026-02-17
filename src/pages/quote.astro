@@ -26,7 +26,7 @@ import { site } from "../data/siteContent";
       <!-- How it works mini-steps -->
       <div class="mt-8 flex flex-wrap justify-center gap-6 sm:gap-10">
         {[
-          { num: "1", label: "Your contact info" },
+          { num: "1", label: "Contact details" },
           { num: "2", label: "Map your property" },
           { num: "3", label: "Add details & submit" },
         ].map((s) => (
@@ -42,12 +42,12 @@ import { site } from "../data/siteContent";
     <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
   </section>
 
-  <!-- ═══════════ LEAD CAPTURE GATE ═══════════ -->
+  <!-- ═══════════ STEP 1: LEAD CAPTURE GATE ═══════════ -->
   <section id="lead-gate-section" class="w-full bg-surface py-10 lg:py-14">
     <div class="container-main max-w-[620px]">
       <div class="bg-surface2 border border-border rounded-lg p-6 lg:p-8">
         <h2 class="font-heading font-bold text-xl text-text uppercase tracking-wide">
-          Step 1: Your Contact Info
+          Step 1: Contact Details
         </h2>
         <p class="mt-2 text-muted text-sm leading-relaxed">
           So we can send you the quote. Takes 30 seconds.
@@ -56,53 +56,57 @@ import { site } from "../data/siteContent";
         <form id="lead-gate-form" class="mt-6 space-y-4" novalidate>
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
-              <label for="lg-name" class="block text-sm font-medium text-text mb-1.5">Name <span class="text-accent">*</span></label>
-              <input
-                type="text"
-                id="lg-name"
-                name="name"
-                required
-                placeholder="Your name"
-                class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
-              />
+              <label for="lg-name" class="block text-sm font-medium text-text mb-1.5">Full Name <span class="text-accent">*</span></label>
+              <input type="text" id="lg-name" name="name" required placeholder="Your name"
+                class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" />
               <p class="lg-error hidden mt-1 text-red-400 text-xs">Please enter your name.</p>
             </div>
             <div>
               <label for="lg-phone" class="block text-sm font-medium text-text mb-1.5">Phone <span class="text-accent">*</span></label>
-              <input
-                type="tel"
-                id="lg-phone"
-                name="phone"
-                required
-                placeholder="(XXX) XXX-XXXX"
-                class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
-              />
+              <input type="tel" id="lg-phone" name="phone" required placeholder="(XXX) XXX-XXXX"
+                class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" />
               <p class="lg-error hidden mt-1 text-red-400 text-xs">Please enter a valid phone number.</p>
             </div>
           </div>
 
           <div>
-            <label for="lg-email" class="block text-sm font-medium text-text mb-1.5">Email</label>
-            <input
-              type="email"
-              id="lg-email"
-              name="email"
-              placeholder="you@email.com"
-              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
-            />
+            <label for="lg-email" class="block text-sm font-medium text-text mb-1.5">Email <span class="text-accent">*</span></label>
+            <input type="email" id="lg-email" name="email" required placeholder="you@email.com"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" />
+            <p class="lg-error hidden mt-1 text-red-400 text-xs">Please enter a valid email.</p>
           </div>
 
           <div>
             <label for="lg-address" class="block text-sm font-medium text-text mb-1.5">Property Address <span class="text-accent">*</span></label>
-            <input
-              type="text"
-              id="lg-address"
-              name="address"
-              required
-              placeholder="e.g., 123 Main St, North Huntingdon, PA"
-              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
-            />
+            <input type="text" id="lg-address" name="address" required placeholder="e.g., 123 Main St, North Huntingdon, PA"
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm placeholder-muted/40 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" />
             <p class="lg-error hidden mt-1 text-red-400 text-xs">Please enter the property address.</p>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label for="lg-timing" class="block text-sm font-medium text-text mb-1.5">Timing</label>
+              <select id="lg-timing" name="timing"
+                class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors">
+                <option value="">When do you need this?</option>
+                <option value="ASAP">ASAP</option>
+                <option value="1-2 weeks">1&ndash;2 weeks</option>
+                <option value="3-6 weeks">3&ndash;6 weeks</option>
+                <option value="2+ months">2+ months</option>
+              </select>
+            </div>
+            <div>
+              <label for="lg-budget" class="block text-sm font-medium text-text mb-1.5">Budget Range</label>
+              <select id="lg-budget" name="budget"
+                class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors">
+                <option value="">Estimated budget</option>
+                <option value="< $4k">Under $4,000</option>
+                <option value="$4-8k">$4,000 &ndash; $8,000</option>
+                <option value="$8-15k">$8,000 &ndash; $15,000</option>
+                <option value="$15k+">$15,000+</option>
+                <option value="Not sure">Not sure yet</option>
+              </select>
+            </div>
           </div>
 
           <button type="submit" class="btn btn-primary w-full !text-sm">
@@ -117,16 +121,16 @@ import { site } from "../data/siteContent";
     </div>
   </section>
 
-  <!-- Map + Form Section (hidden until lead gate is passed) -->
+  <!-- ═══════════ STEP 2: MAP TOOL (hidden until gate passed) ═══════════ -->
   <section id="map-section" class="w-full bg-surface py-10 lg:py-14 hidden">
     <div class="container-main">
       <!-- Confirmation bar -->
-      <div id="lead-confirmed-bar" class="mb-6 bg-olive/15 border border-olive/30 rounded-lg px-5 py-3 flex items-center justify-between">
+      <div id="lead-confirmed-bar" class="mb-6 bg-olive/15 border border-olive/30 rounded-lg px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p class="text-olive2 text-sm font-medium">
-          <span class="font-semibold">Contact info saved.</span> Now draw your clearing area on the map below.
+          <span class="font-semibold">Step 1 complete.</span> Now draw your clearing area on the map below.
         </p>
-        <button type="button" id="edit-contact-btn" class="text-accent text-xs font-medium hover:text-accent2 transition-colors underline">
-          Edit info
+        <button type="button" id="edit-contact-btn" class="text-accent text-xs font-medium hover:text-accent2 transition-colors underline shrink-0">
+          Edit contact info
         </button>
       </div>
       <BrushQuoteMap />
@@ -181,20 +185,35 @@ import { site } from "../data/siteContent";
 </BaseLayout>
 
 <script>
+  // ── Tracking Hooks ──
+  function fireEvent(name: string, data?: Record<string, string>) {
+    window.dispatchEvent(new CustomEvent(name, { detail: data }));
+    if (typeof console !== "undefined") {
+      console.log(`[KT Event] ${name}`, data || "");
+    }
+  }
+
   // ── Lead Gate Logic ──
   const gateForm = document.getElementById("lead-gate-form") as HTMLFormElement;
   const gateSection = document.getElementById("lead-gate-section");
   const mapSection = document.getElementById("map-section");
   const editBtn = document.getElementById("edit-contact-btn");
 
-  // Pre-fill BrushQuoteMap fields with gated data
+  // Store Step 1 data in memory so it can be included in final submission
+  let step1Data: Record<string, string> = {};
+
   function prefillMapForm() {
     const name = (document.getElementById("lg-name") as HTMLInputElement)?.value;
     const phone = (document.getElementById("lg-phone") as HTMLInputElement)?.value;
     const email = (document.getElementById("lg-email") as HTMLInputElement)?.value;
     const address = (document.getElementById("lg-address") as HTMLInputElement)?.value;
+    const timing = (document.getElementById("lg-timing") as HTMLSelectElement)?.value;
+    const budget = (document.getElementById("lg-budget") as HTMLSelectElement)?.value;
 
-    // Pre-fill the map form fields (IDs from BrushQuoteMap)
+    // Save to client state
+    step1Data = { name, phone, email, address, timing, budget };
+
+    // Pre-fill the BrushQuoteMap form fields
     const mapName = document.getElementById("q-name") as HTMLInputElement;
     const mapPhone = document.getElementById("q-phone") as HTMLInputElement;
     const mapEmail = document.getElementById("q-email") as HTMLInputElement;
@@ -206,40 +225,57 @@ import { site } from "../data/siteContent";
     if (mapEmail && email) mapEmail.value = email;
     if (mapAddress && address) mapAddress.value = address;
     if (searchInput && address) searchInput.value = address;
+
+    // Inject hidden fields for timing/budget into the map quote form
+    const quoteForm = document.getElementById("quote-form") as HTMLFormElement;
+    if (quoteForm) {
+      // Remove old injected fields if editing
+      quoteForm.querySelectorAll(".injected-step1").forEach((el) => el.remove());
+
+      const fields = [
+        { name: "timing", value: timing },
+        { name: "budget", value: budget },
+        { name: "source", value: "quote-map-tool" },
+      ];
+      fields.forEach((f) => {
+        if (f.value) {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = f.name;
+          input.value = f.value;
+          input.className = "injected-step1";
+          quoteForm.prepend(input);
+        }
+      });
+    }
   }
 
   gateForm?.addEventListener("submit", (e) => {
     e.preventDefault();
     let valid = true;
 
-    // Reset errors
     gateForm.querySelectorAll(".lg-error").forEach((el) => el.classList.add("hidden"));
 
     const name = gateForm.querySelector("#lg-name") as HTMLInputElement;
-    if (!name.value.trim()) {
-      name.nextElementSibling?.classList.remove("hidden");
-      valid = false;
-    }
+    if (!name.value.trim()) { name.nextElementSibling?.classList.remove("hidden"); valid = false; }
 
     const phone = gateForm.querySelector("#lg-phone") as HTMLInputElement;
-    if (!/^[\d\s\-\(\)\+]{7,}$/.test(phone.value.trim())) {
-      phone.nextElementSibling?.classList.remove("hidden");
-      valid = false;
-    }
+    if (!/^[\d\s\-\(\)\+]{7,}$/.test(phone.value.trim())) { phone.nextElementSibling?.classList.remove("hidden"); valid = false; }
+
+    const email = gateForm.querySelector("#lg-email") as HTMLInputElement;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { email.nextElementSibling?.classList.remove("hidden"); valid = false; }
 
     const address = gateForm.querySelector("#lg-address") as HTMLInputElement;
-    if (!address.value.trim()) {
-      address.nextElementSibling?.classList.remove("hidden");
-      valid = false;
-    }
+    if (!address.value.trim()) { address.nextElementSibling?.classList.remove("hidden"); valid = false; }
 
     if (valid) {
-      // Hide gate, show map
       gateSection?.classList.add("hidden");
       mapSection?.classList.remove("hidden");
 
-      // Pre-fill map form fields
       prefillMapForm();
+
+      // Fire tracking event
+      fireEvent("kt_lead_captured", { source: "quote-page-step1", name: name.value.trim() });
 
       // Auto-trigger address search on the map
       setTimeout(() => {
@@ -247,7 +283,6 @@ import { site } from "../data/siteContent";
         if (searchBtn) searchBtn.click();
       }, 500);
 
-      // Scroll to map section
       mapSection?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   });
@@ -258,4 +293,22 @@ import { site } from "../data/siteContent";
     gateSection?.classList.remove("hidden");
     gateSection?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
+
+  // ── Listen for final quote submission and fire event ──
+  const submitBtn = document.getElementById("submit-btn");
+  if (submitBtn) {
+    // The BrushQuoteMap handles its own form submission; we just listen for the success state
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((m) => {
+        if (m.type === "attributes" || m.type === "childList") {
+          const successEl = document.getElementById("quote-success") || document.querySelector("[id*='success']");
+          if (successEl && !successEl.classList.contains("hidden")) {
+            fireEvent("kt_quote_submitted", { source: "quote-map-tool", ...step1Data });
+            observer.disconnect();
+          }
+        }
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+  }
 </script>

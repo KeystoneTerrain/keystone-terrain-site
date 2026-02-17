@@ -31,6 +31,11 @@ export const POST: APIRoute = async ({ request }) => {
     const centerLat = formData.get("center_lat") as string;
     const centerLng = formData.get("center_lng") as string;
 
+    // New fields from lead capture gate / landing page
+    const timing = formData.get("timing") as string;
+    const budget = formData.get("budget") as string;
+    const source = formData.get("source") as string;
+
     // Extract photos
     const photos = formData.getAll("photos") as File[];
     const photoInfo = photos
@@ -45,17 +50,22 @@ export const POST: APIRoute = async ({ request }) => {
     console.log("\n══════════════════════════════════════════════");
     console.log("  NEW QUOTE REQUEST RECEIVED");
     console.log("══════════════════════════════════════════════");
+    console.log(`  Source:    ${source || "direct"}`);
     console.log(`  Name:      ${name}`);
     console.log(`  Phone:     ${phone}`);
     console.log(`  Email:     ${email || "(not provided)"}`);
     console.log(`  Address:   ${address}`);
-    console.log(`  Acres:     ${acres}`);
+    console.log(`  Timing:    ${timing || "(not specified)"}`);
+    console.log(`  Budget:    ${budget || "(not specified)"}`);
+    console.log(`  Acres:     ${acres || "(not mapped)"}`);
     console.log(`  Slope:     ${slope || "(not estimated)"}`);
     console.log(`  Month:     ${preferredMonth || "(no preference)"}`);
     console.log(`  Notes:     ${notes || "(none)"}`);
     console.log(`  Photos:    ${photoInfo.length} file(s)`);
     photoInfo.forEach((p) => console.log(`             - ${p.name} (${p.size})`));
-    console.log(`  Coords:    ${centerLat}, ${centerLng}`);
+    if (centerLat && centerLng) {
+      console.log(`  Coords:    ${centerLat}, ${centerLng}`);
+    }
     if (polygon) {
       try {
         const coords = JSON.parse(polygon);
