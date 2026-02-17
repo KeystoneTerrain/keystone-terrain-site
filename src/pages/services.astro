@@ -4,21 +4,21 @@ import { services, site } from "../data/siteContent";
 ---
 
 <BaseLayout
-  title="Our Services | Keystone Terrain Co."
-  description="Professional forestry mulching, hillside clearing, brush hogging, fence line clearing, trail cutting, and invasive species removal in the Greater Pittsburgh area."
+  title="Forestry Mulching Services | Keystone Terrain Co."
+  description="Professional forestry mulching services: land clearing, construction lot prep, trail cutting, fence line clearing, invasive removal, and storm reclamation in the Greater Pittsburgh area."
 >
   <!-- Hero -->
   <section class="relative w-full noise-overlay overflow-hidden">
     <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,#1a2e1f_0%,#0B1411_60%)]"></div>
     <div class="relative z-10 container-main pt-16 pb-14 lg:pt-24 lg:pb-20 text-center">
       <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
-        Our Services
+        What We Do
       </p>
       <h1 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-text leading-[1.08]">
-        WHAT WE DO
+        FORESTRY MULCHING SERVICES
       </h1>
-      <p class="mt-4 text-muted text-base max-w-xl mx-auto leading-relaxed">
-        Professional land clearing solutions for every terrain and every challenge in Western Pennsylvania.
+      <p class="mt-4 text-muted text-base max-w-2xl mx-auto leading-relaxed">
+        Premium, low-impact land clearing using professional forestry mulching equipment&mdash;priced by acreage + site conditions for fast, accurate quotes.
       </p>
     </div>
     <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
@@ -30,8 +30,9 @@ import { services, site } from "../data/siteContent";
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {services.map((service) => (
           <a
+            id={service.slug}
             href="/quote"
-            class="group block rounded-lg overflow-hidden bg-surface2 border border-border transition-all duration-[250ms] ease-out hover:-translate-y-1.5 hover:border-border-hover hover:shadow-[0_12px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(200,163,105,0.15)]"
+            class="group block rounded-lg overflow-hidden bg-surface2 border border-border transition-all duration-[250ms] ease-out hover:-translate-y-1.5 hover:border-border-hover hover:shadow-[0_12px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(200,163,105,0.15)] scroll-mt-24"
           >
             <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-surface2 via-[#1a3028] to-surface">
               <img
@@ -45,6 +46,7 @@ import { services, site } from "../data/siteContent";
             <div class="p-5 lg:p-6">
               <h3 class="font-heading font-bold text-base lg:text-lg text-text uppercase tracking-wide group-hover:text-accent transition-colors duration-200">
                 {service.title}
+                <span class="block text-olive2 text-xs font-semibold tracking-[0.08em] mt-1">(Forestry Mulching)</span>
               </h3>
               <p class="mt-2 text-muted text-sm leading-relaxed">
                 {service.description}
@@ -53,6 +55,11 @@ import { services, site } from "../data/siteContent";
           </a>
         ))}
       </div>
+
+      <!-- Method Note -->
+      <p class="mt-10 text-center text-muted/60 text-xs italic max-w-2xl mx-auto leading-relaxed">
+        Forestry mulching is our primary method&mdash;fast, low-impact clearing without burning or hauling in many cases.
+      </p>
 
       <!-- CTA -->
       <div class="mt-14 pt-10 border-t border-border text-center">

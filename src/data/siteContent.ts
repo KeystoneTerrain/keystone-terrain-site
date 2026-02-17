@@ -13,48 +13,61 @@ export const site = {
 
 export interface ServiceItem {
   title: string;
+  slug: string;
   image: string;
   description: string;
 }
 
 export const services: ServiceItem[] = [
   {
-    title: "Forestry Mulching",
+    title: "Land & Brush Clearing",
+    slug: "service-land-brush",
     image: "/services/forestry-mulching.jpg",
     description:
-      "Transform overgrown timber and brush into clean, cleared land in a single pass — no burning, no hauling, no mess.",
+      "Turn overgrown acreage into usable land fast using forestry mulching—ideal for lots, fields, edges, and reclaim projects.",
   },
   {
-    title: "Hillside Mulching",
+    title: "Construction Lot Prep",
+    slug: "service-construction",
     image: "/services/hillside-mulching.jpg",
     description:
-      "Remote-controlled equipment built for steep slopes other companies turn down. We clear grades up to 60°+.",
+      "Clear and prep build sites with forestry mulching for homes, pole barns, cabins, and access corridors—clean, build-ready space.",
   },
   {
-    title: "Brush Hogging",
-    image: "/services/brush-hogging.jpg",
-    description:
-      "Tall grass, thick weeds, and dense undergrowth leveled to a clean, uniform finish — fast and affordable.",
-  },
-  {
-    title: "Fence Line Clearing",
-    image: "/services/fence-line.jpg",
-    description:
-      "Restore full visibility and access along overgrown fence rows without damaging existing posts or wire.",
-  },
-  {
-    title: "Trail Cutting",
+    title: "Trails & Access Corridors",
+    slug: "service-trails",
     image: "/services/trail-cutting.jpg",
     description:
-      "Custom ATV trails, walking paths, and access roads cut through dense woodland with clean, finished edges.",
+      "Cut new or restore existing trails and access lanes using forestry mulching for ATVs, walking paths, and property navigation.",
   },
   {
-    title: "Invasive Species Removal",
+    title: "Fence Line & Boundary Clearing",
+    slug: "service-fenceline",
+    image: "/services/fence-line.jpg",
+    description:
+      "Restore visibility and access along fence lines and property boundaries using precision forestry mulching without damaging posts or wire.",
+  },
+  {
+    title: "Invasive Vegetation Removal",
+    slug: "service-invasive",
     image: "/services/invasive-removal.jpg",
     description:
-      "Mechanical removal of multiflora rose, autumn olive, knotweed, and other aggressive invaders choking your property.",
+      "Target aggressive species like multiflora rose, autumn olive, honeysuckle, and thorn thickets using forestry mulching.",
+  },
+  {
+    title: "Storm & Property Reclamation",
+    slug: "service-reclamation",
+    image: "/services/brush-hogging.jpg",
+    description:
+      "Cleanup and restoration after storms or long-term neglect using forestry mulching—remove hazards, downed brush, and overgrowth.",
   },
 ];
+
+/** Dropdown-ready links derived from services */
+export const serviceNavLinks = services.map((s) => ({
+  label: s.title,
+  href: `/#${s.slug}`,
+}));
 
 export interface TestimonialItem {
   quote: string;

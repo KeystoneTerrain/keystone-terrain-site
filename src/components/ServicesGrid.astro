@@ -7,13 +7,13 @@ import { services } from "../data/siteContent";
   <!-- Section Header -->
   <div class="text-center mb-14">
     <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
-      Our Services
+      What We Do
     </p>
     <h2 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-text">
-      WHAT WE DO
+      FORESTRY MULCHING SERVICES
     </h2>
-    <p class="mt-4 text-muted text-base max-w-xl mx-auto leading-relaxed">
-      Professional land clearing solutions for every terrain and every challenge in Western Pennsylvania.
+    <p class="mt-4 text-muted text-base max-w-2xl mx-auto leading-relaxed">
+      Premium, low-impact land clearing using professional forestry mulching equipment&mdash;priced by acreage + site conditions for fast, accurate quotes.
     </p>
   </div>
 
@@ -21,8 +21,9 @@ import { services } from "../data/siteContent";
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
     {services.map((service) => (
       <a
+        id={service.slug}
         href="/quote"
-        class="group block rounded-lg overflow-hidden bg-surface2 border border-border transition-all duration-[250ms] ease-out hover:-translate-y-1.5 hover:border-border-hover hover:shadow-[0_12px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(200,163,105,0.15)]"
+        class="group block rounded-lg overflow-hidden bg-surface2 border border-border transition-all duration-[250ms] ease-out hover:-translate-y-1.5 hover:border-border-hover hover:shadow-[0_12px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(200,163,105,0.15)] scroll-mt-24"
       >
         <!-- Image -->
         <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-surface2 via-[#1a3028] to-surface">
@@ -39,6 +40,7 @@ import { services } from "../data/siteContent";
         <div class="p-5 lg:p-6">
           <h3 class="font-heading font-bold text-base lg:text-lg text-text uppercase tracking-wide group-hover:text-accent transition-colors duration-200">
             {service.title}
+            <span class="block text-olive2 text-xs font-semibold tracking-[0.08em] mt-1">(Forestry Mulching)</span>
           </h3>
           <p class="mt-2 text-muted text-sm leading-relaxed">
             {service.description}
@@ -47,4 +49,9 @@ import { services } from "../data/siteContent";
       </a>
     ))}
   </div>
+
+  <!-- Method Note -->
+  <p class="mt-10 text-center text-muted/60 text-xs italic max-w-2xl mx-auto leading-relaxed">
+    Forestry mulching is our primary method&mdash;fast, low-impact clearing without burning or hauling in many cases.
+  </p>
 </Section>
