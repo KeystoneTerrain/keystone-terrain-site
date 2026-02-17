@@ -11,13 +11,13 @@ import { site } from "../data/siteContent";
   <div class="relative z-10 container-main pt-20 pb-24 lg:pt-32 lg:pb-36 text-center">
     <!-- Headline -->
     <h1 class="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] text-text leading-[1.06] tracking-tight max-w-4xl mx-auto">
-      RECLAIM YOUR LAND WITH PROFESSIONAL FORESTRY MULCHING
+      PROFESSIONAL FORESTRY MULCHING &amp; LAND TRANSFORMATION
     </h1>
 
     <!-- Subheadline -->
     <p class="mt-6 text-muted text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-      We turn overgrown lots, tangled hillsides, and dense brush into cleared, usable property — often in a single day.
-      Serving the Greater Pittsburgh Area with professional-grade forestry mulching and land clearing.
+      We turn overgrown lots, tangled hillsides, and dense brush into cleared, usable property&mdash;often in a single day.
+      Professional-grade forestry mulching for landowners, builders, and property managers.
     </p>
 
     <!-- Credentials Row -->
@@ -25,7 +25,7 @@ import { site } from "../data/siteContent";
       {[
         { icon: "★", label: "5-Star Rated" },
         { icon: "✓", label: "Licensed & Fully Insured" },
-        { icon: "⌂", label: "Locally Owned in North Huntingdon, PA" },
+        { icon: "⌂", label: "Locally Owned & Operated" },
       ].map((item) => (
         <div class="flex items-center gap-2">
           <span class="w-7 h-7 rounded-full bg-olive/20 text-olive2 flex items-center justify-center text-xs font-bold">
@@ -39,7 +39,7 @@ import { site } from "../data/siteContent";
     <!-- CTA Row -->
     <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
       <a href="/quote" class="btn btn-primary">
-        Map Your Property &amp; Get Quote&ensp;→
+        Get Your Fast Forestry Mulching Quote&ensp;→
       </a>
       <a
         href={`tel:${site.phone.replace(/\D/g, "")}`}
@@ -48,6 +48,11 @@ import { site } from "../data/siteContent";
         {site.phone}
       </a>
     </div>
+
+    <!-- Supporting line -->
+    <p class="mt-4 text-muted/60 text-xs tracking-wide">
+      Most quotes delivered within 24&ndash;48 hours.
+    </p>
   </div>
 
   <!-- Bottom fade line -->
