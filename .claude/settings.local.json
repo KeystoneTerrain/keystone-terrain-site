@@ -16,7 +16,8 @@
       "Bash(for f in /Users/matthewhill/Desktop/Keystone-Terrain/.vercel/output/functions/_render.func/dist/server/pages/*.mjs)",
       "Bash(done)",
       "Bash(git rm:*)",
-      "Bash(sips:*)"
+      "Bash(sips:*)",
+      "Bash(git status:*)"
     ]
   }
 }
