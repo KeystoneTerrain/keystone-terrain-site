@@ -1,0 +1,29 @@
+---
+import Section from "./Section.astro";
+---
+
+<Section bg="bg-bg" padding="py-14 lg:py-20" narrow>
+  <div class="text-center mb-8">
+    <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
+      Who We Serve
+    </p>
+    <h2 class="text-2xl sm:text-3xl font-heading font-bold text-text">
+      BEST FIT FOR
+    </h2>
+  </div>
+
+  <div class="space-y-4 max-w-xl mx-auto">
+    {[
+      "Landowners who want a clean, walkable finish — not a rough knockdown.",
+      "Projects where access, safety, and soil preservation matter.",
+      "People who value speed and professionalism over the cheapest bid.",
+    ].map((item) => (
+      <div class="flex gap-3 items-start">
+        <span class="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-olive/20 text-olive2 flex items-center justify-center text-xs font-bold">
+          ✓
+        </span>
+        <p class="text-muted text-sm leading-relaxed">{item}</p>
+      </div>
+    ))}
+  </div>
+</Section>

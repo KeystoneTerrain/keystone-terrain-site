@@ -1,0 +1,49 @@
+---
+import Section from "./Section.astro";
+---
+
+<Section bg="bg-surface" noise>
+  <div class="text-center mb-12">
+    <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
+      How It Works
+    </p>
+    <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text">
+      WHAT TO EXPECT
+    </h2>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+    {[
+      {
+        num: "1",
+        title: "Scope",
+        desc: "Use our Digital Scoping System or call us. We verify acreage, slope, and access remotely.",
+      },
+      {
+        num: "2",
+        title: "Plan",
+        desc: "We confirm site conditions, define the clearing outcome, and lock in your quote.",
+      },
+      {
+        num: "3",
+        title: "Clear",
+        desc: "Our crew executes cleanly — low disturbance, no debris piles, no hauling in most cases.",
+      },
+      {
+        num: "4",
+        title: "Walkthrough",
+        desc: "We confirm the finished result with you and document the before/after.",
+      },
+    ].map((step) => (
+      <div class="text-center">
+        <span class="inline-flex w-10 h-10 rounded-full bg-accent/15 text-accent text-sm font-bold items-center justify-center font-heading mb-4">
+          {step.num}
+        </span>
+        <h3 class="font-heading font-bold text-sm text-text uppercase tracking-wide">
+          {step.title}
+        </h3>
+        <p class="mt-2 text-muted text-sm leading-relaxed">{step.desc}</p>
+      </div>
+    ))}
+  </div>
+</Section>
