@@ -74,12 +74,12 @@ export const services: ServiceItem[] = [
     ],
   },
   {
-    title: "Trails & Access Corridors",
+    title: "Trails, Hunting Trails & Access Corridors",
     slug: "trails-access-corridors",
     anchorId: "service-trails",
     image: "/services/trail-cutting.jpg",
     description:
-      "Cut new trails or restore overgrown access routes through dense terrain.",
+      "Cut new trails or restore overgrown access routes through dense terrain\u2014ideal for property navigation, equipment access, and hunting trails.",
     metaDescription:
       "Trail cutting and access corridor clearing using forestry mulching in Pittsburgh and surrounding areas. ATV trails, walking paths, and property roads. Free estimates.",
     longDescription: [
