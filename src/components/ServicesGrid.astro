@@ -1,19 +1,32 @@
 ---
 import Section from "./Section.astro";
 import { services } from "../data/siteContent";
+
+/**
+ * Outcome-framed subtitles — maps service slug to a result-oriented label.
+ * These replace the generic "(Forestry Mulching)" subtitle.
+ */
+const outcomeLabels: Record<string, string> = {
+  "land-brush-clearing": "Usability & Access Restoration",
+  "construction-lot-prep": "Development-Ready Site Preparation",
+  "trails-access-corridors": "Property Access & Connectivity",
+  "fence-line-clearing": "Boundary Visibility & Maintenance Access",
+  "invasive-vegetation-removal": "Ecosystem Recovery & Land Reclamation",
+  "storm-property-reclamation": "Rapid Property Recovery",
+};
 ---
 
 <Section id="services" bg="bg-surface" noise>
   <!-- Section Header -->
   <div class="text-center mb-14">
     <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
-      What We Do
+      What We Deliver
     </p>
     <h2 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-text">
-      LAND CLEARING &amp; FORESTRY MULCHING SERVICES
+      LARGE-SCALE BRUSH &amp; VEGETATION RECLAMATION
     </h2>
     <p class="mt-4 text-muted text-base max-w-2xl mx-auto leading-relaxed">
-      One machine. One pass. Total transformation. We use professional forestry mulching to handle everything from brush-choked lots to storm-damaged timber&mdash;no burning, no hauling, no heavy excavation.
+      Every project is scoped for usability, access, and long-term property optimization. We don't just clear land&mdash;we prepare it for what comes next.
     </p>
   </div>
 
@@ -40,7 +53,9 @@ import { services } from "../data/siteContent";
         <div class="p-5 lg:p-6">
           <h3 class="font-heading font-bold text-base lg:text-lg text-text uppercase tracking-wide group-hover:text-accent transition-colors duration-200">
             {service.title}
-            <span class="block text-olive2 text-xs font-semibold tracking-[0.08em] mt-1">(Forestry Mulching)</span>
+            <span class="block text-olive2 text-xs font-semibold tracking-[0.08em] mt-1">
+              {outcomeLabels[service.slug] || "Professional Land Transformation"}
+            </span>
           </h3>
           <p class="mt-2 text-muted text-sm leading-relaxed">
             {service.description}
@@ -52,6 +67,6 @@ import { services } from "../data/siteContent";
 
   <!-- Method Note -->
   <p class="mt-10 text-center text-muted/60 text-xs italic max-w-2xl mx-auto leading-relaxed">
-    Forestry mulching is our primary method&mdash;fast, low-impact clearing without burning or hauling in many cases.
+    All services use low-disturbance forestry mulching methodology&mdash;no burning, no hauling, no heavy excavation in most cases.
   </p>
 </Section>

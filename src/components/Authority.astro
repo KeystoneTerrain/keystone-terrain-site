@@ -1,0 +1,58 @@
+---
+import Section from "./Section.astro";
+---
+
+<Section bg="bg-bg" narrow>
+  <div class="text-center mb-10">
+    <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
+      Our Standards
+    </p>
+    <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text">
+      WE OWN THE STANDARDS &mdash; NOT JUST THE MACHINES
+    </h2>
+  </div>
+
+  <p class="text-muted text-base leading-relaxed max-w-3xl mx-auto text-center mb-10">
+    Most land clearing outfits own a machine and call themselves a business. We built a system&mdash;one
+    that treats your land like an investment, not just a job site. Every project runs through the
+    same professional framework, from initial scoping to final walkthrough.
+  </p>
+
+  <!-- Standards Grid -->
+  <div class="grid sm:grid-cols-2 gap-x-8 gap-y-5 max-w-3xl mx-auto">
+    {[
+      {
+        title: "Pre-Project Digital Scoping",
+        desc: "Satellite acreage verification, slope analysis, and access planning before we quote.",
+      },
+      {
+        title: "Vetted Specialist Crews Only",
+        desc: "Every operator is background-checked, insured, and trained on our equipment standards.",
+      },
+      {
+        title: "Low-Disturbance Methodology",
+        desc: "Mulch-in-place process preserves topsoil, prevents erosion, and eliminates hauling.",
+      },
+      {
+        title: "Transparent, Condition-Based Pricing",
+        desc: "Quotes based on verified acreage, density, and terrain — no vague estimates.",
+      },
+      {
+        title: "Post-Project Documentation",
+        desc: "Before/after photo documentation and completion summary for every project.",
+      },
+    ].map((item) => (
+      <div class="flex gap-3">
+        <span class="shrink-0 mt-1 w-5 h-5 rounded-full bg-olive/20 text-olive2 flex items-center justify-center text-xs font-bold">
+          ✓
+        </span>
+        <div>
+          <h3 class="font-heading font-bold text-sm text-text uppercase tracking-wide">
+            {item.title}
+          </h3>
+          <p class="mt-1 text-muted text-sm leading-relaxed">{item.desc}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</Section>

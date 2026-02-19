@@ -176,6 +176,14 @@ export const serviceNavLinks = services.map((s) => ({
 export interface TestimonialItem {
   quote: string;
   name: string;
+  /** e.g. "3 acres" — only include if genuinely mentioned/known */
+  acreage?: string;
+  /** e.g. "6 hours" — only include if genuinely mentioned/known */
+  timeframe?: string;
+  /** Brief before condition */
+  before?: string;
+  /** Brief after outcome */
+  after?: string;
 }
 
 export const testimonials: TestimonialItem[] = [
@@ -183,11 +191,17 @@ export const testimonials: TestimonialItem[] = [
     quote:
       "They cleared three acres in under six hours. No burn pile, no stump grinding — just clean, usable land. Couldn't believe the turnaround.",
     name: "Mike R., Murrysville",
+    acreage: "3 acres",
+    timeframe: "Under 6 hours",
+    before: "Overgrown, unusable acreage",
+    after: "Clean, usable land — no burn piles or debris",
   },
   {
     quote:
       "Our hillside was a tangled mess for years. They brought in the remote-controlled machine and handled every inch. Looks incredible now.",
     name: "Sarah L., Canonsburg",
+    before: "Tangled hillside — years of overgrowth",
+    after: "Fully cleared with remote-access equipment",
   },
   {
     quote:
@@ -198,6 +212,9 @@ export const testimonials: TestimonialItem[] = [
     quote:
       "I called four companies about our fence line. Three said no. Keystone cleared both sides in an afternoon without touching a single post.",
     name: "Tom W., Greensburg",
+    timeframe: "One afternoon",
+    before: "Overgrown fence line — 3 other companies declined",
+    after: "Both sides cleared, every post intact",
   },
 ];
 

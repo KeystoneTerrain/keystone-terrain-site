@@ -13,21 +13,22 @@ import { site } from "../data/siteContent";
     <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,#1a2e1f_0%,#0B1411_60%)]"></div>
     <div class="relative z-10 container-main pt-14 pb-10 lg:pt-20 lg:pb-14 text-center">
       <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
-        Instant Quote Tool
+        Digital Scoping System
       </p>
       <h1 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-text leading-[1.08]">
-        MAP YOUR PROPERTY.<br />GET A FAST QUOTE.
+        SCOPE YOUR PROPERTY.<br />GET A PRECISION QUOTE.
       </h1>
       <p class="mt-4 text-muted text-base max-w-2xl mx-auto leading-relaxed">
-        Tell us how to reach you, then use our satellite map tool to draw your clearing area
-        and we'll send you a detailed quote &mdash; usually within 24&ndash;48 hours.
+        Our Digital Scoping System allows us to accurately scope acreage, density, slope, and access
+        before equipment ever touches your land. This ensures precision pricing, professional planning,
+        and no surprises on project day.
       </p>
 
       <!-- How it works mini-steps -->
       <div class="mt-8 flex flex-wrap justify-center gap-6 sm:gap-10">
         {[
           { num: "1", label: "Contact details" },
-          { num: "2", label: "Map your property" },
+          { num: "2", label: "Scope your property" },
           { num: "3", label: "Add details & submit" },
         ].map((s) => (
           <div class="flex items-center gap-2">
@@ -127,7 +128,7 @@ import { site } from "../data/siteContent";
       <!-- Confirmation bar -->
       <div id="lead-confirmed-bar" class="mb-6 bg-olive/15 border border-olive/30 rounded-lg px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p class="text-olive2 text-sm font-medium">
-          <span class="font-semibold">Step 1 complete.</span> Now draw your clearing area on the map below.
+          <span class="font-semibold">Step 1 complete.</span> Now use the Digital Scoping System below to outline your clearing area.
         </p>
         <button type="button" id="edit-contact-btn" class="text-accent text-xs font-medium hover:text-accent2 transition-colors underline shrink-0">
           Edit contact info
@@ -141,24 +142,24 @@ import { site } from "../data/siteContent";
   <section class="w-full bg-bg py-14 lg:py-20">
     <div class="container-main max-w-[900px] text-center">
       <h2 class="text-2xl sm:text-3xl font-heading font-bold text-text mb-8">
-        WHY USE THE MAP TOOL?
+        WHY USE THE DIGITAL SCOPING SYSTEM?
       </h2>
       <div class="grid sm:grid-cols-3 gap-8">
         {[
           {
             icon: "📐",
-            title: "Precise Estimates",
-            desc: "Drawing your exact area on satellite imagery means we quote based on real acreage — not guesswork.",
+            title: "Precision Pricing",
+            desc: "Real satellite acreage and slope data means your quote is based on verified conditions — not ballpark guesses.",
           },
           {
             icon: "⚡",
-            title: "Faster Quotes",
-            desc: "We can see exactly what you need cleared before we even visit. That means a faster, more accurate quote for you.",
+            title: "Professional Planning",
+            desc: "We scope terrain, density, and access before a single machine touches your property. This lets us plan crew deployment and equipment selection in advance.",
           },
           {
             icon: "📸",
-            title: "Photo Context",
-            desc: "Your uploaded photos show us the vegetation density and terrain up close — so there are no surprises on job day.",
+            title: "No Surprises",
+            desc: "Your uploaded photos and mapped terrain give our team full context before project day — so the price you're quoted is the price you pay.",
           },
         ].map((item) => (
           <div>

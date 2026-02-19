@@ -1,0 +1,37 @@
+---
+import Section from "./Section.astro";
+---
+
+<Section bg="bg-bg" narrow>
+  <div class="text-center mb-10">
+    <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
+      Honest Expectations
+    </p>
+    <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text">
+      WHO THIS IS NOT FOR
+    </h2>
+  </div>
+
+  <div class="space-y-4 max-w-2xl mx-auto">
+    {[
+      "Residential lots under 2 acres that only need basic mowing or landscaping.",
+      "Clients looking for the cheapest option regardless of quality or methodology.",
+      "Projects requiring same-day or next-day turnaround without a scoping process.",
+      "Properties where access is restricted and equipment cannot be safely deployed.",
+    ].map((item) => (
+      <div class="flex gap-3 items-start">
+        <span class="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-red-500/15 text-red-400 flex items-center justify-center text-xs font-bold">
+          ✕
+        </span>
+        <p class="text-muted text-sm leading-relaxed">{item}</p>
+      </div>
+    ))}
+  </div>
+
+  <p class="mt-8 text-center text-muted text-sm leading-relaxed max-w-2xl mx-auto">
+    If your project doesn't fit the above, you're exactly who we built this for.
+    <a href="/quote" class="text-accent font-semibold hover:text-accent2 transition-colors ml-1">
+      Start your assessment &rarr;
+    </a>
+  </p>
+</Section>

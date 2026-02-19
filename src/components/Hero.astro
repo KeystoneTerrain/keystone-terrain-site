@@ -10,13 +10,13 @@ import { site } from "../data/siteContent";
 
   <div class="relative z-10 container-main pt-20 pb-24 lg:pt-32 lg:pb-36 text-center">
     <!-- Headline -->
-    <h1 class="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] text-text leading-[1.06] tracking-tight max-w-4xl mx-auto">
-      PROFESSIONAL FORESTRY MULCHING &amp; LAND TRANSFORMATION
+    <h1 class="font-heading font-bold text-3xl sm:text-4xl md:text-5xl lg:text-[3.75rem] text-text leading-[1.06] tracking-tight max-w-4xl mx-auto">
+      Western PA Landowners: Reclaim 2+ Acres of Overgrown Property and Unlock Its Full Potential
     </h1>
 
     <!-- Subheadline -->
     <p class="mt-6 text-muted text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-      Fast, low-impact forestry mulching that turns overgrown land into clean, usable property&mdash;often in a single day.
+      We deploy professionally vetted specialist crews and use our proprietary Digital Scoping System to transform unusable brush into professionally finished, low-disturbance land.
     </p>
 
     <!-- Credentials Row -->
@@ -24,7 +24,7 @@ import { site } from "../data/siteContent";
       {[
         { icon: "★", label: "5-Star Rated" },
         { icon: "✓", label: "Licensed & Fully Insured" },
-        { icon: "⌂", label: "Locally Owned & Operated" },
+        { icon: "⌂", label: "Western PA Specialists" },
       ].map((item) => (
         <div class="flex items-center gap-2">
           <span class="w-7 h-7 rounded-full bg-olive/20 text-olive2 flex items-center justify-center text-xs font-bold">
@@ -38,19 +38,19 @@ import { site } from "../data/siteContent";
     <!-- CTA Row -->
     <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
       <a href="/quote" class="btn btn-primary">
-        Map Your Property &amp; Get Quote
+        Start Your Property Reclamation Assessment
       </a>
       <a
         href={`tel:${site.phone.replace(/\D/g, "")}`}
-        class="text-accent text-sm font-semibold hover:text-accent2 transition-colors duration-200"
+        class="btn btn-outline !py-3 !px-6 !text-sm"
       >
-        {site.phone}
+        Call Now &mdash; {site.phone}
       </a>
     </div>
 
-    <!-- Supporting line -->
-    <p class="mt-4 text-muted/60 text-xs tracking-wide">
-      Most quotes delivered within 24&ndash;48 hours.
+    <!-- Micro text -->
+    <p class="mt-5 text-muted/50 text-xs tracking-wide max-w-lg mx-auto leading-relaxed">
+      We specialize in 2+ acre rural properties. Projects typically start at $4,000+ depending on acreage and density.
     </p>
   </div>
 
