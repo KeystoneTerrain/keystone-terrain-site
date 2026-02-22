@@ -31,7 +31,7 @@ export const services: ServiceItem[] = [
     title: "Land & Brush Clearing",
     slug: "land-brush-clearing",
     anchorId: "service-land-brush",
-    image: "/services/forestry-mulching.jpg",
+    image: "/services/Land&BrushClearing.jpg",
     description:
       "Transform overgrown acreage into clean, usable property—fast.",
     metaDescription:
@@ -54,7 +54,7 @@ export const services: ServiceItem[] = [
     title: "Construction Lot Prep",
     slug: "construction-lot-prep",
     anchorId: "service-lot-prep",
-    image: "/services/hillside-mulching.jpg",
+    image: "/services/construction-lot-prep.jpg",
     description:
       "Clear and prep build sites for homes, barns, and access roads.",
     metaDescription:
@@ -77,7 +77,7 @@ export const services: ServiceItem[] = [
     title: "Trails, Hunting Trails & Access Corridors",
     slug: "trails-access-corridors",
     anchorId: "service-trails",
-    image: "/services/trail-cutting.jpg",
+    image: "/services/TrailClearing.jpg",
     description:
       "Cut new trails or restore overgrown access routes through dense terrain\u2014ideal for property navigation, equipment access, and hunting trails.",
     metaDescription:
@@ -100,7 +100,7 @@ export const services: ServiceItem[] = [
     title: "Fence Line & Boundary Clearing",
     slug: "fence-line-clearing",
     anchorId: "service-fence-line",
-    image: "/services/fence-line.jpg",
+    image: "/services/fence-line.png",
     description:
       "Restore visibility and access along overgrown fence rows and boundaries.",
     metaDescription:
@@ -123,7 +123,7 @@ export const services: ServiceItem[] = [
     title: "Invasive Vegetation Removal",
     slug: "invasive-vegetation-removal",
     anchorId: "service-invasive",
-    image: "/services/invasive-removal.jpg",
+    image: "/services/VegetationRemoval.jpg",
     description:
       "Eliminate invasive species and reclaim choked-out land.",
     metaDescription:
@@ -146,7 +146,7 @@ export const services: ServiceItem[] = [
     title: "Storm & Property Reclamation",
     slug: "storm-property-reclamation",
     anchorId: "service-storm-reclaim",
-    image: "/services/brush-hogging.jpg",
+    image: "/services/StormCleanUp.jpg",
     description:
       "Clean up storm damage and reclaim neglected properties fast.",
     metaDescription:
