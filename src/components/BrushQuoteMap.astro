@@ -942,4 +942,11 @@ import { site } from "../data/siteContent";
 
   // ── Init ──
   initMap();
+
+  // ── Auto-resize map when container becomes visible ──
+  // (Fixes zero-size issue when map is inside a hidden parent on load)
+  const ro = new ResizeObserver(() => {
+    if (map && mapEl.offsetWidth > 0) map.resize();
+  });
+  ro.observe(mapEl);
 </script>

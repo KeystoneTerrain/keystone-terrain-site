@@ -23,7 +23,8 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nReplace favicon with Keystone Terrain logo\n\n- Generated favicon.ico \\(16/32/48px\\), favicon-512.png, and apple-touch-icon.png from logo\n- Updated BaseLayout to reference PNG favicon + apple-touch-icon instead of old SVG\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(npm uninstall:*)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx vercel env ls:*)"
     ]
   }
 }
