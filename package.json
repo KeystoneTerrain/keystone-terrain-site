@@ -10,12 +10,12 @@
   },
   "dependencies": {
     "@astrojs/vercel": "^9.0.4",
+    "@mapbox/mapbox-gl-draw": "^1.5.1",
     "@tailwindcss/vite": "^4.1.18",
     "@turf/area": "^7.3.4",
     "@turf/helpers": "^7.3.4",
     "astro": "^5.17.1",
-    "leaflet": "^1.9.4",
-    "leaflet-draw": "^1.0.4",
+    "mapbox-gl": "^3.18.1",
     "resend": "^6.9.2",
     "tailwindcss": "^4.1.18"
   }

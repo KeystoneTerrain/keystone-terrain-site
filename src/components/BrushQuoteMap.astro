@@ -2,39 +2,56 @@
 /**
  * BrushQuoteMap — Interactive satellite map quoting system
  * Customer draws polygon on satellite view → auto-calculates acres → submits quote request
- * Uses: Leaflet + Leaflet.Draw + Turf.js + free ESRI/USGS tiles (no API keys)
+ * Uses: Mapbox GL JS + Mapbox GL Draw + Turf.js + Mapbox Terrain DEM for slope
  */
 import { site } from "../data/siteContent";
 ---
 
-<!-- Leaflet CSS (loaded from CDN for simplicity, avoids Astro bundling issues with Leaflet CSS) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+<!-- Mapbox GL CSS -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.css" rel="stylesheet" />
+<link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css" rel="stylesheet" />
 
 <style>
-  /* Leaflet icon fix for bundlers */
-  .leaflet-default-icon-path {
-    background-image: url("https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png");
+  /* Mapbox Draw control styling to match site theme */
+  .mapboxgl-ctrl-group {
+    background-color: #162821 !important;
+    border: 1px solid rgba(242, 242, 238, 0.1) !important;
+    border-radius: 6px !important;
+    overflow: hidden;
   }
-
-  /* Custom draw control styling to match site theme */
-  .leaflet-draw-toolbar a {
+  .mapboxgl-ctrl-group button {
     background-color: #162821 !important;
     border-color: rgba(242, 242, 238, 0.1) !important;
-    color: #F2F2EE !important;
+    width: 36px !important;
+    height: 36px !important;
   }
-  .leaflet-draw-toolbar a:hover {
+  .mapboxgl-ctrl-group button:hover {
     background-color: #1e3a2f !important;
     border-color: rgba(200, 163, 105, 0.5) !important;
   }
-  .leaflet-draw-actions a {
-    background-color: #162821 !important;
-    color: #F2F2EE !important;
-    border-color: rgba(242, 242, 238, 0.1) !important;
+  .mapboxgl-ctrl-group button + button {
+    border-top: 1px solid rgba(242, 242, 238, 0.1) !important;
   }
-  .leaflet-draw-actions a:hover {
-    background-color: #C8A369 !important;
-    color: #0B1411 !important;
+  /* Draw button icons — make them visible on dark bg */
+  .mapbox-gl-draw_ctrl-draw-btn {
+    filter: invert(1) brightness(0.85);
+  }
+  .mapbox-gl-draw_ctrl-draw-btn.active {
+    background-color: rgba(200, 163, 105, 0.3) !important;
+  }
+  /* Navigation control icons */
+  .mapboxgl-ctrl-zoom-in .mapboxgl-ctrl-icon,
+  .mapboxgl-ctrl-zoom-out .mapboxgl-ctrl-icon,
+  .mapboxgl-ctrl-compass .mapboxgl-ctrl-icon {
+    filter: invert(1) brightness(0.85);
+  }
+  /* Attribution */
+  .mapboxgl-ctrl-attrib {
+    background-color: rgba(22, 40, 33, 0.7) !important;
+    font-size: 10px !important;
+  }
+  .mapboxgl-ctrl-attrib a {
+    color: rgba(242, 242, 238, 0.5) !important;
   }
 
   /* File drop zone */
@@ -109,10 +126,10 @@ import { site } from "../data/siteContent";
 
   <!-- ═══════════════ MAP CONTAINER ═══════════════ -->
   <div class="relative rounded-lg overflow-hidden border border-border">
-    <div id="leaflet-map" style="height: 520px; width: 100%; background: #111F19;"></div>
+    <div id="mapbox-map" style="height: 520px; width: 100%; background: #111F19;"></div>
 
     <!-- Floating Stats Panel -->
-    <div id="stats-panel" class="absolute top-3 right-3 z-[1000] bg-bg/90 backdrop-blur-sm border border-border rounded-lg p-4 min-w-[200px] hidden">
+    <div id="stats-panel" class="absolute top-3 right-3 z-[5] bg-bg/90 backdrop-blur-sm border border-border rounded-lg p-4 min-w-[200px] hidden">
       <div class="space-y-2">
         <div>
           <p class="text-muted text-xs uppercase tracking-wider font-heading">Selected Area</p>
@@ -137,7 +154,7 @@ import { site } from "../data/siteContent";
     </div>
 
     <!-- Map instructions overlay -->
-    <div id="map-instructions" class="absolute bottom-3 left-3 z-[1000] bg-bg/85 backdrop-blur-sm border border-border rounded-lg px-4 py-2.5">
+    <div id="map-instructions" class="absolute bottom-3 left-3 z-[5] bg-bg/85 backdrop-blur-sm border border-border rounded-lg px-4 py-2.5">
       <p class="text-muted text-xs flex items-center gap-2">
         <svg class="w-4 h-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -348,29 +365,26 @@ import { site } from "../data/siteContent";
      CLIENT-SIDE SCRIPT — Map, Drawing, Calculations
      ═══════════════════════════════════════════════════ -->
 <script>
-  import L from "leaflet";
-  import "leaflet-draw";
+  import mapboxgl from "mapbox-gl";
+  import MapboxDraw from "@mapbox/mapbox-gl-draw";
   import { area as turfArea } from "@turf/area";
-  import { polygon as turfPolygon } from "@turf/helpers";
 
-  // ── Fix Leaflet default icon paths (common bundler issue) ──
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  });
+  // ── Mapbox Access Token ──
+  const MAPBOX_TOKEN = import.meta.env.PUBLIC_MAPBOX_TOKEN || "";
+  if (!MAPBOX_TOKEN) {
+    console.error("Missing PUBLIC_MAPBOX_TOKEN environment variable. Map will not load.");
+  }
+  (mapboxgl as any).accessToken = MAPBOX_TOKEN;
 
   // ── State ──
-  let map: L.Map;
-  let drawnItems: L.FeatureGroup;
-  let currentPolygon: L.Polygon | null = null;
+  let map: mapboxgl.Map;
+  let draw: MapboxDraw;
   let selectedAcres = 0;
   let estimatedSlope = "";
   let resolvedAddress = "";
 
   // ── DOM refs ──
-  const mapEl = document.getElementById("leaflet-map")!;
+  const mapEl = document.getElementById("mapbox-map")!;
   const statsPanel = document.getElementById("stats-panel")!;
   const acreDisplay = document.getElementById("acre-display")!;
   const slopeDisplay = document.getElementById("slope-display")!;
@@ -408,106 +422,154 @@ import { site } from "../data/siteContent";
     });
   }
 
+  // ── Haversine distance between two [lng, lat] points (returns meters) ──
+  function haversine(lng1: number, lat1: number, lng2: number, lat2: number): number {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  // ── Point-in-polygon (ray casting) ──
+  function pointInPolygon(x: number, y: number, polygon: number[][]): boolean {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const [xi, yi] = polygon[i];
+      const [xj, yj] = polygon[j];
+      if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+        inside = !inside;
+      }
+    }
+    return inside;
+  }
+
   // ── Initialize Map ──
   function initMap() {
-    // Center on North Huntingdon, PA
-    map = L.map(mapEl, {
-      center: [40.3284, -79.7281],
+    map = new mapboxgl.Map({
+      container: mapEl,
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      center: [-79.7281, 40.3284], // North Huntingdon, PA
       zoom: 13,
-      zoomControl: true,
+      attributionControl: true,
     });
 
-    // ESRI World Imagery (free, no API key)
-    const satellite = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      {
-        attribution: "Tiles &copy; Esri",
-        maxZoom: 19,
-      }
-    );
+    // Navigation control (zoom +/-)
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
 
-    // OpenStreetMap for labels/roads overlay
-    const labels = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
-      {
-        maxZoom: 19,
-        opacity: 0.6,
-      }
-    );
-
-    // USGS Topo for slope context (switchable)
-    const topo = L.tileLayer(
-      "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
-      {
-        attribution: "USGS",
-        maxZoom: 16,
-      }
-    );
-
-    satellite.addTo(map);
-    labels.addTo(map);
-
-    // Layer control
-    const baseLayers = {
-      "Satellite": satellite,
-      "Topographic": topo,
-    };
-    const overlays = {
-      "Road Labels": labels,
-    };
-    L.control.layers(baseLayers, overlays, { position: "topright" }).addTo(map);
-
-    // ── Drawing Setup (polygon only) ──
-    drawnItems = new L.FeatureGroup();
-    map.addLayer(drawnItems);
-
-    const drawControl = new L.Control.Draw({
-      position: "topleft",
-      draw: {
-        polygon: {
-          allowIntersection: false,
-          showArea: false,
-          shapeOptions: {
-            color: "#C8A369",
-            weight: 2,
-            fillColor: "#C8A369",
-            fillOpacity: 0.2,
+    // Mapbox GL Draw — polygon only
+    draw = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true,
+        trash: true,
+      },
+      defaultMode: "simple_select",
+      styles: [
+        // Polygon fill (active)
+        {
+          id: "gl-draw-polygon-fill-active",
+          type: "fill",
+          filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
+          paint: { "fill-color": "#C8A369", "fill-opacity": 0.2 },
+        },
+        // Polygon outline (active)
+        {
+          id: "gl-draw-polygon-stroke-active",
+          type: "line",
+          filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: { "line-color": "#C8A369", "line-width": 2.5 },
+        },
+        // Line during drawing
+        {
+          id: "gl-draw-line",
+          type: "line",
+          filter: ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: { "line-color": "#C8A369", "line-width": 2, "line-dasharray": [2, 2] },
+        },
+        // Vertex points
+        {
+          id: "gl-draw-point-vertex",
+          type: "circle",
+          filter: ["all", ["==", "$type", "Point"], ["==", "meta", "vertex"]],
+          paint: {
+            "circle-radius": 6,
+            "circle-color": "#C8A369",
+            "circle-stroke-width": 2,
+            "circle-stroke-color": "#162821",
           },
-        } as any,
-        polyline: false,
-        rectangle: false,
-        circle: false,
-        circlemarker: false,
-        marker: false,
-      },
-      edit: {
-        featureGroup: drawnItems,
-        remove: true,
-      },
+        },
+        // Midpoints
+        {
+          id: "gl-draw-point-midpoint",
+          type: "circle",
+          filter: ["all", ["==", "$type", "Point"], ["==", "meta", "midpoint"]],
+          paint: {
+            "circle-radius": 4,
+            "circle-color": "#C8A369",
+            "circle-opacity": 0.6,
+          },
+        },
+        // Static polygon fill
+        {
+          id: "gl-draw-polygon-fill-static",
+          type: "fill",
+          filter: ["all", ["==", "$type", "Polygon"], ["==", "mode", "static"]],
+          paint: { "fill-color": "#C8A369", "fill-opacity": 0.15 },
+        },
+        // Static polygon outline
+        {
+          id: "gl-draw-polygon-stroke-static",
+          type: "line",
+          filter: ["all", ["==", "$type", "Polygon"], ["==", "mode", "static"]],
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: { "line-color": "#C8A369", "line-width": 2.5 },
+        },
+      ],
+    } as any);
+    map.addControl(draw, "top-left");
+
+    // Add terrain DEM source for elevation queries
+    map.on("load", () => {
+      map.addSource("mapbox-dem", {
+        type: "raster-dem",
+        url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+        tileSize: 512,
+        maxzoom: 14,
+      });
+      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.0 });
     });
-    map.addControl(drawControl);
 
     // ── Draw Events ──
-    map.on(L.Draw.Event.CREATED, (e: any) => {
-      // Remove previous polygon
-      drawnItems.clearLayers();
-      currentPolygon = e.layer;
-      drawnItems.addLayer(currentPolygon!);
+    map.on("draw.create", () => {
+      // Only keep the most recent polygon
+      const data = draw.getAll();
+      if (data.features.length > 1) {
+        const latest = data.features[data.features.length - 1];
+        const toDelete = data.features.filter((f) => f.id !== latest.id).map((f) => f.id as string);
+        toDelete.forEach((id) => draw.delete(id));
+      }
       calculateArea();
       showForm();
       setStep(3);
-      instructionText.textContent = "Area drawn! Edit the polygon by dragging vertices, or submit your details below.";
+      instructionText.textContent = "Area drawn! Drag vertices to adjust, or submit your details below.";
     });
 
-    map.on(L.Draw.Event.EDITED, () => {
+    map.on("draw.update", () => {
       calculateArea();
     });
 
-    map.on(L.Draw.Event.DELETED, () => {
-      currentPolygon = null;
+    map.on("draw.delete", () => {
       selectedAcres = 0;
+      estimatedSlope = "";
       statsPanel.classList.add("hidden");
       formSection.classList.add("hidden");
+      slopeDisplay.classList.add("hidden");
       setStep(2);
       instructionText.textContent = "Polygon cleared. Use the polygon tool to draw a new area.";
     });
@@ -517,26 +579,25 @@ import { site } from "../data/siteContent";
 
   // ── Calculate Area (geodesic via Turf.js) ──
   function calculateArea() {
-    if (!currentPolygon) return;
+    const data = draw.getAll();
+    if (data.features.length === 0) return;
 
-    const latlngs = (currentPolygon.getLatLngs()[0] as L.LatLng[]);
-    if (latlngs.length < 3) return;
+    const feature = data.features[0];
+    if (feature.geometry.type !== "Polygon") return;
 
-    // Build GeoJSON ring (must close the ring)
-    const coords = latlngs.map((ll: L.LatLng) => [ll.lng, ll.lat]);
-    coords.push(coords[0]); // close ring
+    const coords = (feature.geometry as GeoJSON.Polygon).coordinates[0]; // [[lng, lat], ...]
+    if (coords.length < 4) return; // Need at least 3 vertices + closing point
 
-    const poly = turfPolygon([coords]);
-    const sqMeters = turfArea(poly);
-
-    // Convert sq meters to acres (1 acre = 4046.86 sq meters)
+    // Geodesic area via Turf.js
+    const sqMeters = turfArea(feature);
     selectedAcres = parseFloat((sqMeters / 4046.86).toFixed(2));
 
     // Calculate perimeter
     let perimeter = 0;
-    for (let i = 0; i < latlngs.length; i++) {
-      const next = latlngs[(i + 1) % latlngs.length];
-      perimeter += latlngs[i].distanceTo(next);
+    for (let i = 0; i < coords.length - 1; i++) {
+      const [lng1, lat1] = coords[i];
+      const [lng2, lat2] = coords[i + 1];
+      perimeter += haversine(lng1, lat1, lng2, lat2);
     }
     const perimeterFt = Math.round(perimeter * 3.28084);
 
@@ -550,82 +611,134 @@ import { site } from "../data/siteContent";
     (document.getElementById("form-polygon") as HTMLInputElement).value = JSON.stringify(coords);
     (document.getElementById("form-acres-display") as HTMLElement).textContent = `${selectedAcres} acres`;
 
-    // Attempt slope estimation via USGS Elevation API
-    fetchSlope(latlngs);
+    // Estimate slope via Mapbox terrain DEM
+    fetchSlope(coords);
   }
 
-  // ── Slope Estimation via USGS Elevation Point Query ──
-  async function fetchSlope(latlngs: L.LatLng[]) {
+  // ── Slope Estimation via Mapbox Terrain DEM ──
+  async function fetchSlope(coords: number[][]) {
     try {
-      // Sample a few points along the polygon for elevation
-      const sampleCount = Math.min(latlngs.length, 8);
-      const step = Math.max(1, Math.floor(latlngs.length / sampleCount));
-      const points: L.LatLng[] = [];
-      for (let i = 0; i < latlngs.length; i += step) {
-        points.push(latlngs[i]);
+      // Wait for terrain to be ready
+      if (!map.getSource("mapbox-dem")) return;
+      await new Promise<void>((resolve) => {
+        if ((map as any).isSourceLoaded("mapbox-dem")) {
+          resolve();
+        } else {
+          const onIdle = () => { map.off("idle", onIdle); resolve(); };
+          map.on("idle", onIdle);
+        }
+      });
+
+      // Build a grid of sample points across the polygon
+      const ring = coords.slice(0, -1); // Remove closing duplicate
+      let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+      for (const [lng, lat] of ring) {
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
       }
 
-      // USGS Elevation API (free, no key)
-      const elevations: number[] = [];
-      for (const pt of points) {
-        const url = `https://epqs.nationalmap.gov/v1/json?x=${pt.lng}&y=${pt.lat}&wkid=4326&units=Feet&includeDate=false`;
-        const resp = await fetch(url);
-        if (resp.ok) {
-          const data = await resp.json();
-          if (data.value !== undefined && data.value !== -1000000) {
-            elevations.push(Number(data.value));
+      // Create a grid of sample points inside the polygon
+      const gridSize = 7;
+      const lngStep = (maxLng - minLng) / gridSize;
+      const latStep = (maxLat - minLat) / gridSize;
+      const samplePoints: [number, number][] = [];
+
+      // Grid interior points
+      for (let i = 1; i < gridSize; i++) {
+        for (let j = 1; j < gridSize; j++) {
+          const lng = minLng + i * lngStep;
+          const lat = minLat + j * latStep;
+          if (pointInPolygon(lng, lat, ring)) {
+            samplePoints.push([lng, lat]);
           }
         }
       }
 
-      if (elevations.length >= 2) {
-        const maxElev = Math.max(...elevations);
-        const minElev = Math.min(...elevations);
-        const elevDiff = maxElev - minElev;
-
-        // Rough slope classification
-        let slopeLabel: string;
-        if (elevDiff < 5) {
-          slopeLabel = "Flat (< 5 ft change)";
-        } else if (elevDiff < 15) {
-          slopeLabel = "Gentle (~" + Math.round(elevDiff) + " ft change)";
-        } else if (elevDiff < 40) {
-          slopeLabel = "Moderate (~" + Math.round(elevDiff) + " ft change)";
-        } else if (elevDiff < 80) {
-          slopeLabel = "Steep (~" + Math.round(elevDiff) + " ft change)";
-        } else {
-          slopeLabel = "Very Steep (~" + Math.round(elevDiff) + " ft change)";
-        }
-
-        estimatedSlope = slopeLabel;
-        slopeValue.textContent = slopeLabel;
-        slopeDisplay.classList.remove("hidden");
-        (document.getElementById("form-slope") as HTMLInputElement).value = slopeLabel;
-        (document.getElementById("form-slope-display") as HTMLElement).textContent = slopeLabel;
-        (document.getElementById("form-slope-display-wrap") as HTMLElement).classList.remove("hidden");
+      // Also sample polygon vertices
+      for (const [lng, lat] of ring) {
+        samplePoints.push([lng, lat]);
       }
+
+      if (samplePoints.length < 3) return;
+
+      // Query elevation at each sample point using Mapbox terrain DEM
+      const elevations: { lng: number; lat: number; elev: number }[] = [];
+      for (const [lng, lat] of samplePoints) {
+        const elev = (map as any).queryTerrainElevation(
+          new mapboxgl.LngLat(lng, lat),
+          { exaggerated: false }
+        );
+        if (elev !== null && elev !== undefined) {
+          elevations.push({ lng, lat, elev: elev * 3.28084 }); // Convert meters → feet
+        }
+      }
+
+      if (elevations.length < 3) return;
+
+      // Calculate pairwise slopes between nearby points
+      const slopes: number[] = [];
+      for (let i = 0; i < elevations.length; i++) {
+        for (let j = i + 1; j < elevations.length; j++) {
+          const a = elevations[i];
+          const b = elevations[j];
+          const horizDist = haversine(a.lng, a.lat, b.lng, b.lat) * 3.28084; // meters → feet
+          if (horizDist < 1) continue; // Skip coincident points
+          const rise = Math.abs(a.elev - b.elev);
+          const slopePct = (rise / horizDist) * 100;
+          slopes.push(slopePct);
+        }
+      }
+
+      if (slopes.length === 0) return;
+
+      const avgSlope = slopes.reduce((sum, s) => sum + s, 0) / slopes.length;
+      const maxSlope = Math.max(...slopes);
+      const maxElev = Math.max(...elevations.map((e) => e.elev));
+      const minElev = Math.min(...elevations.map((e) => e.elev));
+      const elevDiff = Math.round(maxElev - minElev);
+
+      // Classify based on average slope percentage
+      let slopeLabel: string;
+      if (avgSlope < 5) {
+        slopeLabel = `Flat (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
+      } else if (avgSlope < 15) {
+        slopeLabel = `Gentle (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
+      } else if (avgSlope < 30) {
+        slopeLabel = `Moderate (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
+      } else if (avgSlope < 50) {
+        slopeLabel = `Steep (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
+      } else {
+        slopeLabel = `Very Steep (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
+      }
+
+      estimatedSlope = slopeLabel;
+      slopeValue.textContent = slopeLabel;
+      slopeDisplay.classList.remove("hidden");
+      (document.getElementById("form-slope") as HTMLInputElement).value = slopeLabel;
+      (document.getElementById("form-slope-display") as HTMLElement).textContent = slopeLabel;
+      (document.getElementById("form-slope-display-wrap") as HTMLElement).classList.remove("hidden");
     } catch {
       // Slope estimation is best-effort; silently ignore failures
     }
   }
 
-  // ── Address Geocoding (Nominatim — free, no API key) ──
+  // ── Address Geocoding (Mapbox Geocoding API) ──
   async function geocodeAddress(query: string) {
-    // Bias toward Pittsburgh area
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&viewbox=-80.5,40.0,-79.0,40.8&bounded=0&limit=1`;
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&proximity=-79.7281,40.3284&types=address,place&limit=1`;
     try {
-      const resp = await fetch(url, {
-        headers: { "User-Agent": "KeystoneTerrainQuoteTool/1.0" },
-      });
-      const results = await resp.json();
-      if (results.length > 0) {
-        const r = results[0];
-        map.setView([parseFloat(r.lat), parseFloat(r.lon)], 18);
-        resolvedAddress = r.display_name;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (data.features && data.features.length > 0) {
+        const feature = data.features[0];
+        const [lng, lat] = feature.center;
+        map.flyTo({ center: [lng, lat], zoom: 18 });
+        resolvedAddress = feature.place_name;
         (document.getElementById("form-address-auto") as HTMLInputElement).value = resolvedAddress;
         (document.getElementById("q-address") as HTMLInputElement).value = query;
-        (document.getElementById("form-center-lat") as HTMLInputElement).value = r.lat;
-        (document.getElementById("form-center-lng") as HTMLInputElement).value = r.lon;
+        (document.getElementById("form-center-lat") as HTMLInputElement).value = String(lat);
+        (document.getElementById("form-center-lng") as HTMLInputElement).value = String(lng);
         setStep(2);
         instructionText.textContent = "Great! Now click the polygon tool (▰ icon) on the left, then click points around the area you want cleared.";
       } else {
@@ -701,7 +814,6 @@ import { site } from "../data/siteContent";
       photoPreviews.appendChild(wrapper);
     });
 
-    // Update drop zone text
     if (uploadedFiles.length >= 5) {
       photoDropZone.classList.add("opacity-50", "pointer-events-none");
     } else {
@@ -724,8 +836,7 @@ import { site } from "../data/siteContent";
   });
 
   clearBtn.addEventListener("click", () => {
-    drawnItems.clearLayers();
-    currentPolygon = null;
+    draw.deleteAll();
     selectedAcres = 0;
     estimatedSlope = "";
     statsPanel.classList.add("hidden");
@@ -736,7 +847,7 @@ import { site } from "../data/siteContent";
   });
 
   editBtn.addEventListener("click", () => {
-    document.getElementById("leaflet-map")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("mapbox-map")?.scrollIntoView({ behavior: "smooth" });
   });
 
   // ── Form Submission ──
@@ -802,14 +913,6 @@ import { site } from "../data/siteContent";
     }
 
     try {
-      // ── OPTION A: Formspree (replace YOUR_FORM_ID) ──
-      // const resp = await fetch("https://formspree.io/f/YOUR_FORM_ID", {
-      //   method: "POST",
-      //   body: formData,
-      //   headers: { "Accept": "application/json" },
-      // });
-
-      // ── OPTION B: Your own API route ──
       const resp = await fetch("/api/submit-quote", {
         method: "POST",
         body: formData,
