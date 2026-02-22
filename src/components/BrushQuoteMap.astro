@@ -650,7 +650,7 @@ import { site } from "../data/siteContent";
 
   async function fetchSlope(coords: number[][]) {
     try {
-      // Build a grid of sample points across the polygon
+      // Build a structured grid of sample points across the polygon
       const ring = coords.slice(0, -1); // Remove closing duplicate
       let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
       for (const [lng, lat] of ring) {
@@ -660,84 +660,128 @@ import { site } from "../data/siteContent";
         if (lat > maxLat) maxLat = lat;
       }
 
-      // Create a grid of sample points inside the polygon
-      const gridSize = 7;
+      // Denser grid (10×10) for better slope accuracy
+      const gridSize = 10;
       const lngStep = (maxLng - minLng) / gridSize;
       const latStep = (maxLat - minLat) / gridSize;
-      const samplePoints: [number, number][] = [];
 
-      // Grid interior points
-      for (let i = 1; i < gridSize; i++) {
-        for (let j = 1; j < gridSize; j++) {
-          const lng = minLng + i * lngStep;
-          const lat = minLat + j * latStep;
+      // Build grid with row/col tracking for neighbor comparisons
+      // grid[row][col] = [lng, lat] or null if outside polygon
+      const grid: ([number, number] | null)[][] = [];
+      const allPoints: [number, number][] = [];
+
+      for (let row = 0; row <= gridSize; row++) {
+        grid[row] = [];
+        for (let col = 0; col <= gridSize; col++) {
+          const lng = minLng + col * lngStep;
+          const lat = minLat + row * latStep;
           if (pointInPolygon(lng, lat, ring)) {
-            samplePoints.push([lng, lat]);
+            grid[row][col] = [lng, lat];
+            allPoints.push([lng, lat]);
+          } else {
+            grid[row][col] = null;
           }
         }
       }
 
-      // Also sample polygon vertices
-      for (const [lng, lat] of ring) {
-        samplePoints.push([lng, lat]);
-      }
+      if (allPoints.length < 3) return;
 
-      if (samplePoints.length < 3) return;
-
-      // Try API-based elevation first (most reliable), fall back to local terrain DEM
-      let elevations: { lng: number; lat: number; elev: number }[] = [];
+      // Fetch elevation data: API first, local DEM fallback
+      let elevMap = new Map<string, number>();
       try {
-        elevations = await fetchElevationsAPI(samplePoints);
+        const elevData = await fetchElevationsAPI(allPoints);
+        for (const p of elevData) elevMap.set(`${p.lng},${p.lat}`, p.elev);
       } catch {
-        // Fallback: query Mapbox terrain DEM locally
-        elevations = queryElevationsLocal(samplePoints);
-        if (elevations.length < 3) {
-          // Retry after waiting for terrain tiles to load
+        const elevData = queryElevationsLocal(allPoints);
+        if (elevData.length < 3) {
           await Promise.race([
             new Promise<void>((resolve) => map.once("idle", resolve)),
             new Promise<void>((resolve) => setTimeout(resolve, 3000)),
           ]);
-          elevations = queryElevationsLocal(samplePoints);
+          const retry = queryElevationsLocal(allPoints);
+          for (const p of retry) elevMap.set(`${p.lng},${p.lat}`, p.elev);
+        } else {
+          for (const p of elevData) elevMap.set(`${p.lng},${p.lat}`, p.elev);
         }
       }
 
-      if (elevations.length < 3) return;
+      if (elevMap.size < 3) return;
 
-      // Calculate pairwise slopes between nearby points
+      // Build elevation grid for neighbor-based slope calculation
+      const elevGrid: (number | null)[][] = [];
+      for (let row = 0; row <= gridSize; row++) {
+        elevGrid[row] = [];
+        for (let col = 0; col <= gridSize; col++) {
+          const pt = grid[row][col];
+          if (pt) {
+            const key = `${pt[0]},${pt[1]}`;
+            elevGrid[row][col] = elevMap.get(key) ?? null;
+          } else {
+            elevGrid[row][col] = null;
+          }
+        }
+      }
+
+      // Calculate slopes between adjacent grid neighbors only (N, S, E, W)
+      // This measures LOCAL steepness rather than diluting with distant-point slopes
       const slopes: number[] = [];
-      for (let i = 0; i < elevations.length; i++) {
-        for (let j = i + 1; j < elevations.length; j++) {
-          const a = elevations[i];
-          const b = elevations[j];
-          const horizDist = haversine(a.lng, a.lat, b.lng, b.lat) * 3.28084; // meters → feet
-          if (horizDist < 1) continue; // Skip coincident points
-          const rise = Math.abs(a.elev - b.elev);
-          const slopePct = (rise / horizDist) * 100;
-          slopes.push(slopePct);
+      const cellWidthFt = haversine(minLng, minLat, minLng + lngStep, minLat) * 3.28084;
+      const cellHeightFt = haversine(minLng, minLat, minLng, minLat + latStep) * 3.28084;
+
+      for (let row = 0; row <= gridSize; row++) {
+        for (let col = 0; col <= gridSize; col++) {
+          const elev = elevGrid[row]?.[col];
+          if (elev === null || elev === undefined) continue;
+
+          // Compare with east neighbor
+          const eastElev = elevGrid[row]?.[col + 1];
+          if (eastElev !== null && eastElev !== undefined && cellWidthFt > 0) {
+            slopes.push((Math.abs(elev - eastElev) / cellWidthFt) * 100);
+          }
+          // Compare with north neighbor
+          const northElev = elevGrid[row + 1]?.[col];
+          if (northElev !== null && northElev !== undefined && cellHeightFt > 0) {
+            slopes.push((Math.abs(elev - northElev) / cellHeightFt) * 100);
+          }
         }
       }
 
       if (slopes.length === 0) return;
 
+      // Sort slopes to compute percentiles
+      const sorted = [...slopes].sort((a, b) => a - b);
+      const p75 = sorted[Math.floor(sorted.length * 0.75)];
+      const maxSlope = sorted[sorted.length - 1];
       const avgSlope = slopes.reduce((sum, s) => sum + s, 0) / slopes.length;
-      const maxSlope = Math.max(...slopes);
-      const maxElev = Math.max(...elevations.map((e) => e.elev));
-      const minElev = Math.min(...elevations.map((e) => e.elev));
+      const allElevs = Array.from(elevMap.values());
+      const maxElev = Math.max(...allElevs);
+      const minElev = Math.min(...allElevs);
       const elevDiff = Math.round(maxElev - minElev);
 
-      // Classify based on average slope percentage
-      let slopeLabel: string;
-      if (avgSlope < 5) {
-        slopeLabel = `Flat (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
-      } else if (avgSlope < 15) {
-        slopeLabel = `Gentle (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
-      } else if (avgSlope < 30) {
-        slopeLabel = `Moderate (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
-      } else if (avgSlope < 50) {
-        slopeLabel = `Steep (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
-      } else {
-        slopeLabel = `Very Steep (~${avgSlope.toFixed(0)}% avg, ${elevDiff} ft change)`;
+      // Classify terrain using percentiles for operational difficulty.
+      // For forestry mulching, steep sections limit equipment access.
+      function classifyGrade(pct: number): string {
+        if (pct < 5) return "Flat";
+        if (pct < 15) return "Gentle";
+        if (pct < 30) return "Moderate";
+        if (pct < 50) return "Steep";
+        return "Very Steep";
       }
+
+      const p90 = sorted[Math.floor(sorted.length * 0.9)];
+      const baseCategory = classifyGrade(p75);
+      const peakCategory = classifyGrade(maxSlope);
+
+      // If there's significant variation (peak category > base category), show range
+      let category: string;
+      if (peakCategory !== baseCategory && maxSlope >= 15) {
+        category = `${baseCategory} to ${peakCategory}`;
+      } else {
+        category = baseCategory;
+      }
+
+      // Build informative label
+      let slopeLabel = `${category} — ${elevDiff} ft elev. change, ~${Math.round(p75)}% typical / ~${Math.round(maxSlope)}% max grade`;
 
       estimatedSlope = slopeLabel;
       slopeValue.textContent = slopeLabel;
