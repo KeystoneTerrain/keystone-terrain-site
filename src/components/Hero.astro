@@ -8,22 +8,27 @@ import { site } from "../data/siteContent";
   <div class="absolute inset-0 bg-[radial-gradient(circle_600px_at_80%_80%,rgba(92,107,58,0.08)_0%,transparent_70%)]"></div>
 
   <div class="relative z-10 container-main pt-20 pb-24 lg:pt-32 lg:pb-36 text-center">
+    <!-- Eyebrow -->
+    <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-4">
+      Attention Western PA Landowners (2+ Acres)
+    </p>
+
     <!-- Headline -->
-    <h1 class="font-heading font-bold text-3xl sm:text-4xl md:text-5xl lg:text-[3.75rem] text-text leading-[1.06] tracking-tight max-w-3xl mx-auto">
-      Western PA Land &amp; Brush Clearing &mdash; Done Right.
+    <h1 class="font-heading font-bold text-3xl sm:text-4xl md:text-5xl lg:text-[3.75rem] text-text leading-[1.06] tracking-tight max-w-4xl mx-auto">
+      Transform 2+ Overgrown Acres Into a Park-Like Finish This Week
     </h1>
 
     <!-- Subheadline -->
     <p class="mt-5 text-muted text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-      We scope your property with our Digital Scoping System, then deploy our standards-driven crew to deliver a clean, low-disturbance finish.
+      Unlock thousands in property equity using our low-disturbance Keystone Digital Scoping System. Zero debris. Zero hauling. 100% usable land.
     </p>
 
     <!-- Badges -->
     <div class="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-8">
       {[
-        { icon: "✓", label: "Licensed & Insured" },
-        { icon: "◎", label: "Low-Disturbance Method" },
-        { icon: "⚡", label: "Fast Turnaround" },
+        { icon: "✓", label: "Professionally Vetted Specialist Crews" },
+        { icon: "◎", label: "Proprietary Digital Scoping Audit" },
+        { icon: "⚡", label: "Zero-Debris, Low-Disturbance Finish" },
       ].map((item) => (
         <div class="flex items-center gap-2">
           <span class="w-6 h-6 rounded-full bg-olive/20 text-olive2 flex items-center justify-center text-[10px] font-bold">
@@ -34,10 +39,15 @@ import { site } from "../data/siteContent";
       ))}
     </div>
 
+    <!-- CTA Framing -->
+    <p class="mt-10 text-muted text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+      Unusable brush isn't just an eyesore &mdash; it's lost equity. Our Digital Scoping System reveals how much usable land you're losing and delivers a 72-hour transformation plan.
+    </p>
+
     <!-- CTAs -->
-    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+    <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
       <a href="/quote" class="btn btn-primary">
-        Start Your Assessment
+        Get Your Property Reclamation Audit
       </a>
       <a
         href={`tel:${site.phone.replace(/\D/g, "")}`}
@@ -49,7 +59,7 @@ import { site } from "../data/siteContent";
 
     <!-- Price anchor -->
     <p class="mt-6 text-muted/60 text-[13px] tracking-wide max-w-xl mx-auto">
-      Minimum project / mobilization starts at $4,000+ &mdash; final price depends on density, terrain, and access.
+      The Keystone Standard: Minimum project investment starts at $4,000.
     </p>
   </div>
 

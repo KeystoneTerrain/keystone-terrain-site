@@ -28,12 +28,12 @@ export interface ServiceItem {
 
 export const services: ServiceItem[] = [
   {
-    title: "Land & Brush Clearing",
+    title: "Equity-Focused Land Transformation",
     slug: "land-brush-clearing",
     anchorId: "service-land-brush",
     image: "/services/Land&BrushClearing.jpg",
     description:
-      "Transform overgrown acreage into clean, usable property—fast.",
+      "Turn unusable acreage into high-value, usable land fast.",
     metaDescription:
       "Professional land and brush clearing using forestry mulching in Pittsburgh and beyond. Fast, low-impact clearing for lots, fields, and reclaim projects. Free estimates.",
     longDescription: [
@@ -51,12 +51,12 @@ export const services: ServiceItem[] = [
     ],
   },
   {
-    title: "Construction Lot Prep",
+    title: "Developer-Ready Build Sites",
     slug: "construction-lot-prep",
     anchorId: "service-lot-prep",
     image: "/services/construction-lot-prep.jpg",
     description:
-      "Clear and prep build sites for homes, barns, and access roads.",
+      "Eliminate 60-day delays. We deliver a construction-ready pad this week so you can start building immediately.",
     metaDescription:
       "Construction site clearing and lot prep using forestry mulching in Pittsburgh and surrounding areas. Clean, build-ready space for homes, pole barns, and cabins. Free quotes.",
     longDescription: [
@@ -74,22 +74,22 @@ export const services: ServiceItem[] = [
     ],
   },
   {
-    title: "Trails, Hunting Trails & Access Corridors",
+    title: "Access Corridors & Shooting Lanes",
     slug: "trails-access-corridors",
     anchorId: "service-trails",
     image: "/services/TrailClearing.jpg",
     description:
-      "Cut new trails or restore overgrown access routes through dense terrain\u2014ideal for property navigation, equipment access, and hunting trails.",
+      "Instantly improve property navigation and habitat visibility for the 2026 season.",
     metaDescription:
       "Trail cutting and access corridor clearing using forestry mulching in Pittsburgh and surrounding areas. ATV trails, walking paths, and property roads. Free estimates.",
     longDescription: [
       "There's nothing like having clean, navigable trails through your own property—whether you're building ATV routes, walking paths, hunting access lanes, or simply connecting different areas of your land. Our forestry mulching equipment cuts precise, clean-edged trails through dense woodland without the mess and expense of traditional clearing.",
       "The beauty of forestry mulching for trail work is the finished product. Instead of mud, ruts, and debris piles along the edges, you get a smooth, mulch-covered trail surface with clean sight lines and natural-looking borders. The mulch layer acts as a natural surface treatment—it compacts over time, drains well, and prevents the trail from turning into a mud channel during rain.",
-      "We cut trails from 6 feet wide (single-track walking paths) up to 16+ feet wide (two-track vehicle access roads). For properties with elevation changes, our equipment handles slopes that would be impossible with conventional clearing methods. We can also widen or restore existing trails that have grown over, bringing them back to full usability without starting from scratch.",
+      "We cut trails for walking paths, ATV routes, and vehicle access roads—whatever width you need. For properties with elevation changes, our equipment handles slopes that would be impossible with conventional clearing methods. We can also widen or restore existing trails that have grown over, bringing them back to full usability without starting from scratch.",
       "Trail projects are priced by linear footage and width, with adjustments for brush density and terrain. We'll walk the planned route with you during the site visit to map out the best path, identify any obstacles, and give you an accurate quote before work begins.",
     ],
     includes: [
-      "Custom trail widths from 6' single-track to 16'+ two-track",
+      "Custom trail widths for walking, ATV, or vehicle access",
       "Clean-edged cuts with natural-looking borders",
       "Mulch surface layer for drainage and compaction",
       "Slope-capable equipment for hilly terrain",
@@ -120,12 +120,12 @@ export const services: ServiceItem[] = [
     ],
   },
   {
-    title: "Invasive Vegetation Removal",
+    title: "Property Health Restoration",
     slug: "invasive-vegetation-removal",
     anchorId: "service-invasive",
     image: "/services/VegetationRemoval.jpg",
     description:
-      "Eliminate invasive species and reclaim choked-out land.",
+      "Stop the spread of invasive species devaluing your timber and usable acreage.",
     metaDescription:
       "Invasive vegetation removal using forestry mulching in Pittsburgh and surrounding areas. Multiflora rose, autumn olive, honeysuckle, and thorn thickets eliminated. Free estimates.",
     longDescription: [
@@ -143,12 +143,12 @@ export const services: ServiceItem[] = [
     ],
   },
   {
-    title: "Storm & Property Reclamation",
+    title: "Storm & Property Restoration",
     slug: "storm-property-reclamation",
     anchorId: "service-storm-reclaim",
     image: "/services/StormCleanUp.jpg",
     description:
-      "Clean up storm damage and reclaim neglected properties fast.",
+      "Rapid recovery from storm damage with a clean, park-like finish.",
     metaDescription:
       "Storm cleanup and property reclamation using forestry mulching in Pittsburgh and surrounding areas. Remove downed trees, brush, and overgrowth. Fast response. Free quotes.",
     longDescription: [

@@ -1003,10 +1003,8 @@ import { site } from "../data/siteContent";
 
       if (!resp.ok) throw new Error("Submit failed");
 
-      // Show success
-      form.classList.add("hidden");
-      successDiv.classList.remove("hidden");
-      successDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Redirect to thank-you page
+      window.location.href = "/thank-you";
     } catch (err) {
       alert("Something went wrong. Please try again or call us directly at (724) 972-9286.");
       submitBtn.classList.remove("opacity-50", "pointer-events-none");

@@ -11,16 +11,76 @@ import { site } from "../data/siteContent";
         Free Estimate
       </p>
       <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text leading-[1.08]">
-        REQUEST SCOPING &amp; PRICING
+        GET YOUR PROPERTY RECLAMATION AUDIT
       </h2>
       <p class="mt-3 text-muted text-sm leading-relaxed">
-        Tell us about the property. We'll respond within 24&ndash;48 hours.
+        Unusable brush isn't just an eyesore &mdash; it's lost equity. Our Digital Scoping System reveals how much usable land you're losing and delivers a 72-hour transformation plan.
       </p>
     </div>
 
     <!-- Form Card -->
     <div class="bg-surface2 border border-border rounded-lg p-6 lg:p-8">
       <form id="quote-form" class="space-y-5" novalidate>
+        <!-- BANT Qualification Questions -->
+        <div class="space-y-4 pb-5 border-b border-border">
+          <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.08em]">
+            Qualification
+          </p>
+
+          <div>
+            <label for="q-acreage-check" class="block text-sm font-medium text-text mb-1.5">
+              Is your property over 2 acres? <span class="text-accent">*</span>
+            </label>
+            <select
+              id="q-acreage-check"
+              name="acreage_qualified"
+              required
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors duration-200"
+            >
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+            <p class="form-error hidden mt-1 text-red-400 text-xs">Please select an option.</p>
+          </div>
+
+          <div>
+            <label for="q-budget-check" class="block text-sm font-medium text-text mb-1.5">
+              Are you prepared to invest $4,000+ to reclaim your property's value? <span class="text-accent">*</span>
+            </label>
+            <select
+              id="q-budget-check"
+              name="budget_qualified"
+              required
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors duration-200"
+            >
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+            <p class="form-error hidden mt-1 text-red-400 text-xs">Please select an option.</p>
+          </div>
+
+          <div>
+            <label for="q-timing-bant" class="block text-sm font-medium text-text mb-1.5">
+              When do you want this transformation completed? <span class="text-accent">*</span>
+            </label>
+            <select
+              id="q-timing-bant"
+              name="timing"
+              required
+              class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors duration-200"
+            >
+              <option value="">Select</option>
+              <option value="ASAP">ASAP</option>
+              <option value="2-4 weeks">2&ndash;4 Weeks</option>
+              <option value="Exploring">Exploring</option>
+            </select>
+            <p class="form-error hidden mt-1 text-red-400 text-xs">Please select your timing.</p>
+          </div>
+        </div>
+
+        <!-- Contact Fields -->
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label for="q-name" class="block text-sm font-medium text-text mb-1.5">
@@ -84,23 +144,6 @@ import { site } from "../data/siteContent";
         </div>
 
         <div>
-          <label for="q-timing" class="block text-sm font-medium text-text mb-1.5">
-            How soon do you want this done?
-          </label>
-          <select
-            id="q-timing"
-            name="timing"
-            class="w-full bg-bg border border-border rounded px-4 py-3 text-text text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors duration-200"
-          >
-            <option value="">Select timing</option>
-            <option value="ASAP">ASAP</option>
-            <option value="2-4 weeks">2&ndash;4 weeks</option>
-            <option value="1-2 months">1&ndash;2 months</option>
-            <option value="Just exploring">Just exploring</option>
-          </select>
-        </div>
-
-        <div>
           <label for="q-message" class="block text-sm font-medium text-text mb-1.5">
             Property Details
           </label>
@@ -114,7 +157,7 @@ import { site } from "../data/siteContent";
         </div>
 
         <button type="submit" class="btn btn-primary w-full">
-          Start Your Assessment
+          Get Your Property Reclamation Audit
         </button>
 
         <p class="text-center text-muted/50 text-xs">
@@ -129,10 +172,17 @@ import { site } from "../data/siteContent";
       </div>
     </div>
 
+    <!-- Scarcity / Capacity Statement -->
+    <div class="mt-8 bg-bg border border-border rounded-lg p-5 text-center">
+      <p class="text-muted text-sm leading-relaxed">
+        To maintain the Keystone Standard of finish, we only deploy <strong class="text-text">2 specialist crews per week</strong> in Western PA. Currently booking for <strong class="text-accent" id="booking-month"></strong>.
+      </p>
+    </div>
+
     <!-- Price anchor + contact below form -->
     <div class="mt-6 text-center space-y-3">
       <p class="text-muted/60 text-[13px] tracking-wide">
-        Minimum project / mobilization starts at $4,000+ &mdash; final price depends on density, terrain, and access.
+        The Keystone Standard: Minimum project investment starts at $4,000.
       </p>
       <p class="text-muted text-sm">
         Prefer to talk?
@@ -148,6 +198,16 @@ import { site } from "../data/siteContent";
 </Section>
 
 <script>
+  // ── Dynamic booking month ──
+  const bookingEl = document.getElementById("booking-month");
+  if (bookingEl) {
+    const now = new Date();
+    // Show current month + 1 (next month) as booking target
+    const bookingDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    bookingEl.textContent = bookingDate.toLocaleString("en-US", { month: "long", year: "numeric" });
+  }
+
+  // ── Form logic with BANT qualification ──
   const form = document.getElementById("quote-form") as HTMLFormElement;
   const success = document.getElementById("form-success");
 
@@ -158,6 +218,32 @@ import { site } from "../data/siteContent";
     // Reset errors
     form.querySelectorAll(".form-error").forEach((el) => el.classList.add("hidden"));
 
+    // BANT qualification checks
+    const acreageCheck = form.querySelector("#q-acreage-check") as HTMLSelectElement;
+    if (!acreageCheck.value) {
+      acreageCheck.nextElementSibling?.classList.remove("hidden");
+      valid = false;
+    }
+
+    const budgetCheck = form.querySelector("#q-budget-check") as HTMLSelectElement;
+    if (!budgetCheck.value) {
+      budgetCheck.nextElementSibling?.classList.remove("hidden");
+      valid = false;
+    }
+
+    const timingBant = form.querySelector("#q-timing-bant") as HTMLSelectElement;
+    if (!timingBant.value) {
+      timingBant.nextElementSibling?.classList.remove("hidden");
+      valid = false;
+    }
+
+    // Disqualification check — redirect if acreage or budget is "No"
+    if (valid && (acreageCheck.value === "No" || budgetCheck.value === "No")) {
+      window.location.href = "/diy-guide";
+      return;
+    }
+
+    // Contact field validation
     const name = form.querySelector("#q-name") as HTMLInputElement;
     if (!name.value.trim()) {
       name.nextElementSibling?.classList.remove("hidden");
@@ -183,8 +269,28 @@ import { site } from "../data/siteContent";
     }
 
     if (valid) {
-      form.classList.add("hidden");
-      success?.classList.remove("hidden");
+      // Submit form data to API
+      const formData = new FormData(form);
+      formData.append("source", "homepage-quote-form");
+
+      fetch("/api/submit-quote", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.href = "/thank-you";
+          } else {
+            form.classList.add("hidden");
+            success?.classList.remove("hidden");
+          }
+        })
+        .catch(() => {
+          // Fallback — show inline success even if API fails
+          form.classList.add("hidden");
+          success?.classList.remove("hidden");
+        });
     }
   });
 </script>

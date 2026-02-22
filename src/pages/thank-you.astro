@@ -1,0 +1,127 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/siteContent";
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Thank You — Keystone Terrain Co."
+  description="Your quote request has been received. Here's what happens next."
+>
+  <section class="relative w-full noise-overlay overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,#1a2e1f_0%,#0B1411_60%)]"></div>
+    <div class="relative z-10 container-main pt-16 pb-10 lg:pt-24 lg:pb-14 text-center">
+      <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
+        Request Received
+      </p>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-text leading-[1.08]">
+        WHAT HAPPENS NEXT
+      </h1>
+      <p class="mt-4 text-muted text-base max-w-2xl mx-auto leading-relaxed">
+        Your property reclamation audit is being prepared. Here's exactly what to expect.
+      </p>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+  </section>
+
+  <!-- Video Section -->
+  <section class="w-full bg-surface py-12 lg:py-16">
+    <div class="container-main max-w-[800px]">
+      <!-- VSL Video Placeholder -->
+      <div class="relative aspect-video bg-surface2 border border-border rounded-lg overflow-hidden flex items-center justify-center">
+        <div class="text-center p-8">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-accent/15 flex items-center justify-center">
+            <svg class="w-10 h-10 text-accent" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+          <p class="text-muted text-sm font-medium">Video Coming Soon</p>
+          <p class="text-muted/60 text-xs mt-1">3&ndash;7 minute overview of the Keystone Standard</p>
+        </div>
+        <!-- When you have a real video, replace the above div with:
+        <iframe
+          src="YOUR_VIDEO_EMBED_URL"
+          class="w-full h-full"
+          frameborder="0"
+          allow="autoplay; fullscreen"
+          allowfullscreen
+        ></iframe>
+        -->
+      </div>
+
+      <!-- What You'll Learn Bullets -->
+      <div class="mt-10 bg-surface2 border border-border rounded-lg p-6 lg:p-8">
+        <h2 class="font-heading font-bold text-xl text-text uppercase tracking-wide mb-6">
+          In This Video, You'll Learn:
+        </h2>
+        <ul class="space-y-4">
+          {[
+            "Who we are and why we only work on 2+ acre properties",
+            "What the Keystone Standard is and how it differs from every other clearing company",
+            "Why traditional clearing methods fail — and cost you more long-term",
+            "How we deliver a park-like finish in days, not weeks",
+            "What happens when we call you — the exact next steps in your project",
+          ].map((item) => (
+            <li class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-6 h-6 rounded-full bg-olive/20 text-olive2 flex items-center justify-center text-xs font-bold mt-0.5">
+                &#10003;
+              </span>
+              <span class="text-muted text-sm leading-relaxed">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- What Happens Next Timeline -->
+      <div class="mt-10">
+        <h2 class="font-heading font-bold text-xl text-text uppercase tracking-wide mb-6 text-center">
+          Your Timeline
+        </h2>
+        <div class="grid sm:grid-cols-3 gap-6">
+          {[
+            {
+              step: "1",
+              title: "We Review Your Property",
+              desc: "Our team analyzes your submission — acreage, terrain, density, and access — within 24 hours.",
+            },
+            {
+              step: "2",
+              title: "We Call You",
+              desc: "Expect a personal call to discuss your project, answer questions, and schedule your site assessment.",
+            },
+            {
+              step: "3",
+              title: "Transformation Begins",
+              desc: "Once approved, our specialist crew deploys within days — not weeks. Most jobs completed same-day.",
+            },
+          ].map((item) => (
+            <div class="bg-surface2 border border-border rounded-lg p-5 text-center">
+              <span class="inline-flex w-10 h-10 rounded-full bg-accent/15 text-accent text-sm font-bold items-center justify-center font-heading mb-3">
+                {item.step}
+              </span>
+              <h3 class="font-heading font-bold text-sm text-text uppercase tracking-wide">
+                {item.title}
+              </h3>
+              <p class="mt-2 text-muted text-sm leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Contact CTA -->
+      <div class="mt-10 pt-8 border-t border-border text-center">
+        <p class="text-muted text-sm">
+          Can't wait? Call us directly:
+        </p>
+        <p class="mt-2">
+          <a
+            href={`tel:${site.phone.replace(/\D/g, "")}`}
+            class="text-accent text-2xl font-heading font-bold hover:text-accent2 transition-colors"
+          >
+            {site.phone}
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

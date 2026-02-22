@@ -1,0 +1,108 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/siteContent";
+export const prerender = true;
+---
+
+<BaseLayout
+  title="DIY Land Clearing Guide — Keystone Terrain Co."
+  description="Free DIY land clearing guide for small properties. Tips, tools, and techniques for clearing brush on your own."
+>
+  <section class="relative w-full noise-overlay overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,#1a2e1f_0%,#0B1411_60%)]"></div>
+    <div class="relative z-10 container-main pt-16 pb-10 lg:pt-24 lg:pb-14 text-center">
+      <p class="text-olive2 text-xs font-heading font-semibold uppercase tracking-[0.18em] mb-3">
+        Free Resource
+      </p>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-text leading-[1.08] max-w-3xl mx-auto">
+        DIY LAND CLEARING GUIDE
+      </h1>
+      <p class="mt-4 text-muted text-base max-w-2xl mx-auto leading-relaxed">
+        Our professional service is designed for properties over 2 acres with a minimum investment of $4,000. For smaller projects, here's a free guide to help you tackle it yourself.
+      </p>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+  </section>
+
+  <section class="w-full bg-surface py-12 lg:py-16">
+    <div class="container-main max-w-[800px]">
+      <!-- Guide Content -->
+      <div class="bg-surface2 border border-border rounded-lg p-6 lg:p-8 space-y-8">
+        <div>
+          <h2 class="font-heading font-bold text-lg text-text uppercase tracking-wide mb-3">
+            1. Assess Your Property
+          </h2>
+          <p class="text-muted text-sm leading-relaxed">
+            Walk the area you want to clear. Identify the types of vegetation (grass, brush, saplings, mature trees), note the terrain (flat vs. hilly), and check for obstacles like rocks, old fencing, or utility lines. Take photos for reference.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-heading font-bold text-lg text-text uppercase tracking-wide mb-3">
+            2. Choose Your Tools
+          </h2>
+          <p class="text-muted text-sm leading-relaxed">
+            For light brush and grass, a heavy-duty brush cutter or walk-behind brush mower may be sufficient. For saplings under 3 inches, a chainsaw or reciprocating saw works well. Loppers handle smaller growth. For anything larger, you'll likely need professional equipment.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-heading font-bold text-lg text-text uppercase tracking-wide mb-3">
+            3. Work in Sections
+          </h2>
+          <p class="text-muted text-sm leading-relaxed">
+            Don't try to clear everything at once. Break the area into manageable sections and work systematically. Start from the edges and work inward. Clear escape routes first in case of equipment issues.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-heading font-bold text-lg text-text uppercase tracking-wide mb-3">
+            4. Handle Debris
+          </h2>
+          <p class="text-muted text-sm leading-relaxed">
+            Stack brush in piles for burning (check local burn permit requirements) or chipping. Rent a chipper for larger amounts of material. Leave mulch on-site when possible to suppress future growth and protect soil.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-heading font-bold text-lg text-text uppercase tracking-wide mb-3">
+            5. Prevent Regrowth
+          </h2>
+          <p class="text-muted text-sm leading-relaxed">
+            After clearing, treat cut stumps with herbicide to prevent resprouting (especially invasive species). Maintain cleared areas with regular mowing during the growing season. Neglected clearings will revert within 2-3 years.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-heading font-bold text-lg text-text uppercase tracking-wide mb-3">
+            6. Safety First
+          </h2>
+          <p class="text-muted text-sm leading-relaxed">
+            Wear protective gear: steel-toe boots, safety glasses, hearing protection, gloves, and chaps if using a chainsaw. Never work alone. Be aware of wildlife, poison ivy, and unstable terrain. Know your limits — if the terrain is steep or the trees are large, call a professional.
+          </p>
+        </div>
+      </div>
+
+      <!-- Upsell / CTA -->
+      <div class="mt-10 bg-bg border border-accent/20 rounded-lg p-6 lg:p-8 text-center">
+        <h2 class="font-heading font-bold text-lg text-text uppercase tracking-wide mb-3">
+          Project Bigger Than Expected?
+        </h2>
+        <p class="text-muted text-sm leading-relaxed max-w-lg mx-auto mb-6">
+          If you discover your property needs more than DIY can handle, we're here to help. Our minimum project investment starts at $4,000 for properties over 2 acres.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="/quote" class="btn btn-primary">
+            Get Your Property Reclamation Audit
+          </a>
+          <a
+            href={`tel:${site.phone.replace(/\D/g, "")}`}
+            class="btn btn-outline !py-3 !px-6 !text-sm"
+          >
+            Call {site.phone}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
