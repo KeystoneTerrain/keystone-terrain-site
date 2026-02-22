@@ -616,18 +616,24 @@ import { site } from "../data/siteContent";
   }
 
   // ── Slope Estimation via Mapbox Terrain DEM ──
+  function queryElevations(samplePoints: [number, number][]): { lng: number; lat: number; elev: number }[] {
+    const elevations: { lng: number; lat: number; elev: number }[] = [];
+    for (const [lng, lat] of samplePoints) {
+      const elev = (map as any).queryTerrainElevation(
+        new mapboxgl.LngLat(lng, lat),
+        { exaggerated: false }
+      );
+      if (elev !== null && elev !== undefined) {
+        elevations.push({ lng, lat, elev: elev * 3.28084 }); // Convert meters → feet
+      }
+    }
+    return elevations;
+  }
+
   async function fetchSlope(coords: number[][]) {
     try {
-      // Wait for terrain to be ready
+      // Ensure terrain source is added
       if (!map.getSource("mapbox-dem")) return;
-      await new Promise<void>((resolve) => {
-        if ((map as any).isSourceLoaded("mapbox-dem")) {
-          resolve();
-        } else {
-          const onIdle = () => { map.off("idle", onIdle); resolve(); };
-          map.on("idle", onIdle);
-        }
-      });
 
       // Build a grid of sample points across the polygon
       const ring = coords.slice(0, -1); // Remove closing duplicate
@@ -663,16 +669,15 @@ import { site } from "../data/siteContent";
 
       if (samplePoints.length < 3) return;
 
-      // Query elevation at each sample point using Mapbox terrain DEM
-      const elevations: { lng: number; lat: number; elev: number }[] = [];
-      for (const [lng, lat] of samplePoints) {
-        const elev = (map as any).queryTerrainElevation(
-          new mapboxgl.LngLat(lng, lat),
-          { exaggerated: false }
-        );
-        if (elev !== null && elev !== undefined) {
-          elevations.push({ lng, lat, elev: elev * 3.28084 }); // Convert meters → feet
-        }
+      // Try querying elevations — terrain tiles may need time to load.
+      // Retry up to 3 times, waiting for map idle between attempts.
+      let elevations: { lng: number; lat: number; elev: number }[] = [];
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await new Promise<void>((resolve) => map.once("idle", resolve));
+        elevations = queryElevations(samplePoints);
+        if (elevations.length >= 3) break;
+        // Wait a beat before retrying
+        await new Promise((r) => setTimeout(r, 500));
       }
 
       if (elevations.length < 3) return;
@@ -940,13 +945,42 @@ import { site } from "../data/siteContent";
     }
   });
 
-  // ── Init ──
-  initMap();
+  // ── Init — delay map creation until container is visible ──
+  // Mapbox GL cannot properly initialize inside a display:none parent.
+  // We use a MutationObserver on the parent section to detect when the
+  // "hidden" class is removed, then initialize the map.
+  let mapInitialized = false;
 
-  // ── Auto-resize map when container becomes visible ──
-  // (Fixes zero-size issue when map is inside a hidden parent on load)
+  function tryInitMap() {
+    if (mapInitialized) return;
+    if (mapEl.offsetWidth === 0 || mapEl.offsetHeight === 0) return;
+    mapInitialized = true;
+    initMap();
+  }
+
+  // Watch the map section for class changes (hidden → visible)
+  const mapSectionEl = document.getElementById("map-section");
+  if (mapSectionEl) {
+    const mo = new MutationObserver(() => {
+      if (!mapSectionEl.classList.contains("hidden")) {
+        tryInitMap();
+        if (mapInitialized) mo.disconnect();
+      }
+    });
+    mo.observe(mapSectionEl, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  // Handle resize after init (e.g. window resize)
   const ro = new ResizeObserver(() => {
-    if (map && mapEl.offsetWidth > 0) map.resize();
+    if (!mapInitialized && mapEl.offsetWidth > 0) {
+      tryInitMap();
+    }
+    if (mapInitialized && map) {
+      map.resize();
+    }
   });
   ro.observe(mapEl);
+
+  // If the map container is already visible (e.g. no gate, or page reload), init immediately
+  tryInitMap();
 </script>
