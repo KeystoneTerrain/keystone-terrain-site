@@ -615,8 +615,26 @@ import { site } from "../data/siteContent";
     fetchSlope(coords);
   }
 
-  // ── Slope Estimation via Mapbox Terrain DEM ──
-  function queryElevations(samplePoints: [number, number][]): { lng: number; lat: number; elev: number }[] {
+  // ── Slope Estimation ──
+  // Primary: Open-Meteo Elevation API (free, reliable, batch queries)
+  // Fallback: Mapbox Terrain DEM queryTerrainElevation (client-side, can fail if tiles not loaded)
+
+  async function fetchElevationsAPI(samplePoints: [number, number][]): Promise<{ lng: number; lat: number; elev: number }[]> {
+    const lats = samplePoints.map(([, lat]) => lat).join(",");
+    const lngs = samplePoints.map(([lng]) => lng).join(",");
+    const url = `https://api.open-meteo.com/v1/elevation?latitude=${lats}&longitude=${lngs}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Elevation API ${resp.status}`);
+    const data = await resp.json();
+    if (!data.elevation || data.elevation.length !== samplePoints.length) throw new Error("Bad elevation response");
+    return samplePoints.map(([lng, lat], i) => ({
+      lng, lat,
+      elev: data.elevation[i] * 3.28084 // meters → feet
+    })).filter(p => p.elev !== null && !isNaN(p.elev));
+  }
+
+  function queryElevationsLocal(samplePoints: [number, number][]): { lng: number; lat: number; elev: number }[] {
+    if (!map.getSource("mapbox-dem")) return [];
     const elevations: { lng: number; lat: number; elev: number }[] = [];
     for (const [lng, lat] of samplePoints) {
       const elev = (map as any).queryTerrainElevation(
@@ -624,7 +642,7 @@ import { site } from "../data/siteContent";
         { exaggerated: false }
       );
       if (elev !== null && elev !== undefined) {
-        elevations.push({ lng, lat, elev: elev * 3.28084 }); // Convert meters → feet
+        elevations.push({ lng, lat, elev: elev * 3.28084 });
       }
     }
     return elevations;
@@ -632,9 +650,6 @@ import { site } from "../data/siteContent";
 
   async function fetchSlope(coords: number[][]) {
     try {
-      // Ensure terrain source is added
-      if (!map.getSource("mapbox-dem")) return;
-
       // Build a grid of sample points across the polygon
       const ring = coords.slice(0, -1); // Remove closing duplicate
       let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
@@ -669,15 +684,21 @@ import { site } from "../data/siteContent";
 
       if (samplePoints.length < 3) return;
 
-      // Try querying elevations — terrain tiles may need time to load.
-      // Retry up to 3 times, waiting for map idle between attempts.
+      // Try API-based elevation first (most reliable), fall back to local terrain DEM
       let elevations: { lng: number; lat: number; elev: number }[] = [];
-      for (let attempt = 0; attempt < 3; attempt++) {
-        await new Promise<void>((resolve) => map.once("idle", resolve));
-        elevations = queryElevations(samplePoints);
-        if (elevations.length >= 3) break;
-        // Wait a beat before retrying
-        await new Promise((r) => setTimeout(r, 500));
+      try {
+        elevations = await fetchElevationsAPI(samplePoints);
+      } catch {
+        // Fallback: query Mapbox terrain DEM locally
+        elevations = queryElevationsLocal(samplePoints);
+        if (elevations.length < 3) {
+          // Retry after waiting for terrain tiles to load
+          await Promise.race([
+            new Promise<void>((resolve) => map.once("idle", resolve)),
+            new Promise<void>((resolve) => setTimeout(resolve, 3000)),
+          ]);
+          elevations = queryElevationsLocal(samplePoints);
+        }
       }
 
       if (elevations.length < 3) return;
@@ -724,8 +745,8 @@ import { site } from "../data/siteContent";
       (document.getElementById("form-slope") as HTMLInputElement).value = slopeLabel;
       (document.getElementById("form-slope-display") as HTMLElement).textContent = slopeLabel;
       (document.getElementById("form-slope-display-wrap") as HTMLElement).classList.remove("hidden");
-    } catch {
-      // Slope estimation is best-effort; silently ignore failures
+    } catch (err) {
+      console.warn("[Slope] Estimation failed:", err);
     }
   }
 
