@@ -203,16 +203,9 @@ import { site } from "../data/siteContent";
   // Store Step 1 data in memory so it can be included in final submission
   let step1Data: Record<string, string> = {};
 
-  function prefillMapForm() {
-    const name = (document.getElementById("lg-name") as HTMLInputElement)?.value;
-    const phone = (document.getElementById("lg-phone") as HTMLInputElement)?.value;
-    const email = (document.getElementById("lg-email") as HTMLInputElement)?.value;
-    const address = (document.getElementById("lg-address") as HTMLInputElement)?.value;
-    const timing = (document.getElementById("lg-timing") as HTMLSelectElement)?.value;
-    const budget = (document.getElementById("lg-budget") as HTMLSelectElement)?.value;
-
+  function prefillMapForm(data: Record<string, string>) {
     // Save to client state
-    step1Data = { name, phone, email, address, timing, budget };
+    step1Data = data;
 
     // Pre-fill the BrushQuoteMap form fields
     const mapName = document.getElementById("q-name") as HTMLInputElement;
@@ -221,22 +214,24 @@ import { site } from "../data/siteContent";
     const mapAddress = document.getElementById("q-address") as HTMLInputElement;
     const searchInput = document.getElementById("address-search") as HTMLInputElement;
 
-    if (mapName && name) mapName.value = name;
-    if (mapPhone && phone) mapPhone.value = phone;
-    if (mapEmail && email) mapEmail.value = email;
-    if (mapAddress && address) mapAddress.value = address;
-    if (searchInput && address) searchInput.value = address;
+    if (mapName && data.name) mapName.value = data.name;
+    if (mapPhone && data.phone) mapPhone.value = data.phone;
+    if (mapEmail && data.email) mapEmail.value = data.email;
+    if (mapAddress && data.address) mapAddress.value = data.address;
+    if (searchInput && data.address) searchInput.value = data.address;
 
-    // Inject hidden fields for timing/budget into the map quote form
+    // Inject hidden fields for extra data into the map quote form
     const quoteForm = document.getElementById("quote-form") as HTMLFormElement;
     if (quoteForm) {
       // Remove old injected fields if editing
       quoteForm.querySelectorAll(".injected-step1").forEach((el) => el.remove());
 
       const fields = [
-        { name: "timing", value: timing },
-        { name: "budget", value: budget },
-        { name: "source", value: "quote-map-tool" },
+        { name: "timing", value: data.timing },
+        { name: "budget", value: data.budget },
+        { name: "acreage_qualified", value: data.acreage_qualified },
+        { name: "budget_qualified", value: data.budget_qualified },
+        { name: "source", value: data.source || "quote-map-tool" },
       ];
       fields.forEach((f) => {
         if (f.value) {
@@ -251,6 +246,49 @@ import { site } from "../data/siteContent";
     }
   }
 
+  // ── Check for data passed from homepage form via sessionStorage ──
+  const storedLead = sessionStorage.getItem("kt_lead_data");
+  if (storedLead) {
+    try {
+      const leadData = JSON.parse(storedLead);
+      sessionStorage.removeItem("kt_lead_data"); // consume once
+
+      // Skip the gate, go straight to the map tool
+      gateSection?.classList.add("hidden");
+      mapSection?.classList.remove("hidden");
+
+      // Pre-fill gate form fields too (so "Edit contact info" works)
+      const lgName = document.getElementById("lg-name") as HTMLInputElement;
+      const lgPhone = document.getElementById("lg-phone") as HTMLInputElement;
+      const lgEmail = document.getElementById("lg-email") as HTMLInputElement;
+      const lgAddress = document.getElementById("lg-address") as HTMLInputElement;
+      const lgTiming = document.getElementById("lg-timing") as HTMLSelectElement;
+      const lgBudget = document.getElementById("lg-budget") as HTMLSelectElement;
+
+      if (lgName && leadData.name) lgName.value = leadData.name;
+      if (lgPhone && leadData.phone) lgPhone.value = leadData.phone;
+      if (lgEmail && leadData.email) lgEmail.value = leadData.email;
+      if (lgAddress && leadData.address) lgAddress.value = leadData.address;
+      if (lgTiming && leadData.timing) lgTiming.value = leadData.timing;
+      if (lgBudget && leadData.budget_qualified) lgBudget.value = leadData.budget_qualified;
+
+      prefillMapForm(leadData);
+
+      fireEvent("kt_lead_captured", { source: "homepage-quote-form", name: leadData.name });
+
+      // Auto-trigger address search on the map
+      setTimeout(() => {
+        const searchBtn = document.getElementById("search-btn");
+        if (searchBtn) searchBtn.click();
+      }, 500);
+
+      mapSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch {
+      // Bad data — fall through to normal gate flow
+    }
+  }
+
+  // ── Normal gate form submit (direct /quote visitors) ──
   gateForm?.addEventListener("submit", (e) => {
     e.preventDefault();
     let valid = true;
@@ -273,7 +311,17 @@ import { site } from "../data/siteContent";
       gateSection?.classList.add("hidden");
       mapSection?.classList.remove("hidden");
 
-      prefillMapForm();
+      const gateData: Record<string, string> = {
+        name: name.value.trim(),
+        phone: phone.value.trim(),
+        email: (gateForm.querySelector("#lg-email") as HTMLInputElement).value.trim(),
+        address: address.value.trim(),
+        timing: (document.getElementById("lg-timing") as HTMLSelectElement)?.value || "",
+        budget: (document.getElementById("lg-budget") as HTMLSelectElement)?.value || "",
+        source: "quote-page-step1",
+      };
+
+      prefillMapForm(gateData);
 
       // Fire tracking event
       fireEvent("kt_lead_captured", { source: "quote-page-step1", name: name.value.trim() });

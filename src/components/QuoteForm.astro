@@ -237,8 +237,8 @@ import { site } from "../data/siteContent";
       valid = false;
     }
 
-    // Disqualification check — redirect if acreage or budget is "No"
-    if (valid && (acreageCheck.value === "No" || budgetCheck.value === "No")) {
+    // Disqualification check — only redirect to DIY guide if BOTH acreage and budget are "No"
+    if (valid && acreageCheck.value === "No" && budgetCheck.value === "No") {
       window.location.href = "/diy-guide";
       return;
     }
@@ -269,28 +269,22 @@ import { site } from "../data/siteContent";
     }
 
     if (valid) {
-      // Submit form data to API
-      const formData = new FormData(form);
-      formData.append("source", "homepage-quote-form");
+      // Store all form data in sessionStorage so the /quote map tool can use it
+      const leadData: Record<string, string> = {
+        name: (form.querySelector("#q-name") as HTMLInputElement).value.trim(),
+        phone: (form.querySelector("#q-phone") as HTMLInputElement).value.trim(),
+        email: (form.querySelector("#q-email") as HTMLInputElement).value.trim(),
+        address: (form.querySelector("#q-location") as HTMLInputElement).value.trim(),
+        message: (form.querySelector("#q-message") as HTMLTextAreaElement).value.trim(),
+        acreage_qualified: acreageCheck.value,
+        budget_qualified: budgetCheck.value,
+        timing: timingBant.value,
+        source: "homepage-quote-form",
+      };
+      sessionStorage.setItem("kt_lead_data", JSON.stringify(leadData));
 
-      fetch("/api/submit-quote", {
-        method: "POST",
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            window.location.href = "/thank-you";
-          } else {
-            form.classList.add("hidden");
-            success?.classList.remove("hidden");
-          }
-        })
-        .catch(() => {
-          // Fallback — show inline success even if API fails
-          form.classList.add("hidden");
-          success?.classList.remove("hidden");
-        });
+      // Redirect to the map tool
+      window.location.href = "/quote";
     }
   });
 </script>
